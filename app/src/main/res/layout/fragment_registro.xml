@@ -76,13 +76,14 @@
                 android:textColor="@color/colorAzulClaro"
                 android:textSize="22sp" />
         </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilRepPassRegistro"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:hint="@string/contrase_a"
+            android:hint="@string/repite_la_contrase_a"
             android:textColorHint="@color/colorAzulClaro"
             app:boxCornerRadiusBottomEnd="25dp"
             app:boxCornerRadiusBottomStart="25dp"
@@ -185,7 +186,7 @@
                 android:paddingTop="5dp"
                 android:paddingEnd="30dp"
                 android:paddingBottom="5dp"
-                android:text="Volver"
+                android:text="@string/volver"
                 android:textAlignment="center"
                 android:textColor="@color/colorTexto"
                 android:textSize="22sp" />
