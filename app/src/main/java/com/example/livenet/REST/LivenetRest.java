@@ -8,7 +8,7 @@ import retrofit2.http.*;
 public interface LivenetRest {
 
 
-    @GET("localizaciones/")
+/*    @GET("localizaciones/")
     Call<List<Localizacion>> findAll();
 
     @POST("actualizarloc")
@@ -18,4 +18,6 @@ public interface LivenetRest {
     Call<Localizacion> delete(@Path("alias")String alias);
 
     @GET()
+    */
 }
+
