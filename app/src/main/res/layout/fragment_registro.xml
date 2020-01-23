@@ -140,7 +140,7 @@
             android:clickable="true"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            app:cardBackgroundColor="@color/colorAzulTraslucido"
+            app:cardBackgroundColor="@color/colorAzulClaro"
             card_view:cardCornerRadius="25dp"
             card_view:cardElevation="10dp"
             card_view:cardUseCompatPadding="false">
