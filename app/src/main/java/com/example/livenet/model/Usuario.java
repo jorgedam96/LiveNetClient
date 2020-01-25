@@ -70,4 +70,20 @@ public class Usuario {
     public String getFoto() {
         return foto;
     }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
 }

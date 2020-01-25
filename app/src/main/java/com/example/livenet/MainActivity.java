@@ -1,5 +1,6 @@
 package com.example.livenet;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -11,6 +12,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.livenet.model.Usuario;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Objects;
@@ -18,6 +20,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
     BottomNavigationView navView;
     NavController navController;
+    Usuario logged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +39,13 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
+        logged = new Usuario();
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
 
+        logged.setAlias(extras.getString("alias"));
+        logged.setCorreo(extras.getString("correo"));
+        logged.setFoto(extras.getString("foto"));
 
     }
 
