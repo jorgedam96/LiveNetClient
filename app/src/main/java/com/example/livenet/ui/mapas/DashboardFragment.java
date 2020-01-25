@@ -1,4 +1,4 @@
-package com.example.livenet.ui.dashboard;
+package com.example.livenet.ui.mapas;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

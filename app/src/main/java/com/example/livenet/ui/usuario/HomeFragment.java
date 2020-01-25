@@ -1,4 +1,4 @@
-package com.example.livenet.ui.home;
+package com.example.livenet.ui.usuario;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

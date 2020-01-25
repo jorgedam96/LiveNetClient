@@ -1,4 +1,4 @@
-package com.example.livenet.ui.dashboard;
+package com.example.livenet.ui.mapas;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
