@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "559765214830",
+    "firebase_url": "https://livenetchatstudent.firebaseio.com",
+    "project_id": "livenetchatstudent",
+    "storage_bucket": "livenetchatstudent.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:559765214830:android:acc353ab2eaa462d6f387f",
+        "android_client_info": {
+          "package_name": "com.example.livenet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "559765214830-597h1lic6l8eilcrbmqbd4e01le9macb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.livenet",
+            "certificate_hash": "fcb32bbbc323ddd456974c4cf06163ab70450efa"
+          }
+        },
+        {
+          "client_id": "559765214830-e27u7ra90559dh6o7jp4cpv07rdfclt1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOB4LoajxwNhyY-HlLxbLj2my6rROmqU0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "559765214830-e27u7ra90559dh6o7jp4cpv07rdfclt1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
