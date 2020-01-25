@@ -48,24 +48,26 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private boolean hayLoc = false;
     private GoogleMap mMap;
     private FusedLocationProviderClient mPosicion;
-
-
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        solicitarPermisos();
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
         root = inflater.inflate(R.layout.fragment_mapa, container, false);
         try {
             SupportMapFragment supportMapFragment = SupportMapFragment.newInstance();
+            FragmentManager frm = getActivity().getSupportFragmentManager();
 
-            getFragmentManager().beginTransaction().replace(R.id.mapContainer, supportMapFragment).commit();
+            frm.beginTransaction().replace(R.id.mapContainer, supportMapFragment).commit();
             supportMapFragment.getMapAsync(this);
         } catch (Exception e) {
             Log.e("mapa", e.getMessage());
@@ -82,23 +84,35 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             @Override
             public void onMyLocationChange(Location location) {
-                // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
 
                 acercarCamara(location);
             }
         });
-        //mMap.setMyLocationEnabled(true);
+        mMap.setMyLocationEnabled(true);
 
         configurarIUMapa();
 
 
+       /* mGoogleApiClient = new GoogleApiClient.Builder(root.getContext())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        // Crear el LocationRequest
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(10 * 1000)        // 10 segundos en milisegundos
+                .setFastestInterval(1000); // 1 segundo en milisegundos
+*/
 
     }
 
     private void acercarCamara(Location location) {
         if (!hayLoc) {
             CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(location.getLatitude(), location.getLongitude()), 15);
+                    new LatLng(location.getLatitude(), location.getLongitude()), 20);
             mMap.animateCamera(cam);
             hayLoc = true;
         }
@@ -122,6 +136,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     @Override
     public void onLocationChanged(Location location) {
+        Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -131,62 +146,19 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
 
-    private void solicitarPermisos() {
-        // Antes de nada si queremos mostrar nuestra localización debemos hacer esto
-        // Si tenemos los permisos
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            // Activamos el botón de lalocalización
 
-            permisos = true;
-        } else {
-            // Si no
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // Mostrar diálogo explicativo
-            } else {
-                // Solicitar permiso
-                ActivityCompat.requestPermissions(
-                        getActivity(),
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        LOCATION_REQUEST_CODE);
-            }
-        }
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        permisos = false;
-        if (requestCode == LOCATION_REQUEST_CODE) {
-            // ¿Permisos asignados?
-            if (permissions.length > 0 &&
-                    permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                permisos = true;
-            } else {
-                Toast.makeText(root.getContext(), "Error de permisos", Toast.LENGTH_LONG).show();
-            }
-            if (permissions.length > 0 &&
-                    permissions[0].equals(Manifest.permission.ACCESS_COARSE_LOCATION) &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                permisos = true;
-            } else {
-                Toast.makeText(root.getContext(), "Error de permisos", Toast.LENGTH_LONG).show();
-            }
-
-        }
-    }
 
 
     private void configurarIUMapa() {
 
         mMap.setOnMarkerClickListener(this);
-
+        if (permisos) {
+            mMap.setMyLocationEnabled(true);
+        }
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(
-                root.getContext(), R.raw.estilo_mapa));
+
+
+       // mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(root.getContext(), R.raw.estilo_mapa));
 
 
         UiSettings uiSettings = mMap.getUiSettings();
