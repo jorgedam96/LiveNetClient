@@ -1,4 +1,4 @@
-package com.example.livenet;
+package com.example.livenet.ui.login;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -12,10 +12,13 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.UsuariosRest;
+import com.example.livenet.Utilidades;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
+import com.example.livenet.ui.login.LoginFragment;
 
 import java.util.Objects;
 
@@ -99,12 +102,12 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
     }
 
     private void irALogin() {
-        FragmentLogin fl = new FragmentLogin();
+        LoginFragment fl = new LoginFragment();
         FragmentManager fragmentManager = getFragmentManager();
         Objects.requireNonNull(fragmentManager)
                 .beginTransaction()
                 .setCustomAnimations(R.anim.bounce, 0, 0, 0)
-                .replace(R.id.nav_host_fragment, fl)
+                .replace(R.id.containerLogin, fl)
                 .commit();
     }
 

@@ -1,39 +1,37 @@
-package com.example.livenet;
+package com.example.livenet.ui.login;
 
-import android.app.Activity;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
+import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.UsuariosRest;
-import com.example.livenet.model.Localizacion;
+import com.example.livenet.Utilidades;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.ui.home.HomeFragment;
 
-import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+public class LoginFragment extends Fragment implements View.OnClickListener{
 
-public class FragmentLogin extends Fragment implements View.OnClickListener {
 
     private View root;
     private EditText usuario;
@@ -42,20 +40,16 @@ public class FragmentLogin extends Fragment implements View.OnClickListener {
     private CardView btnRegistrar;
     private UsuariosRest usuariosRest;
 
-    public FragmentLogin() {
+
+    public static LoginFragment newInstance() {
+        return new LoginFragment();
     }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.fragment_login, container, false);
-
+        root = inflater.inflate(R.layout.login_fragment, container, false);
 
         asignarElementosLayout();
         asignarListenerBotones();
@@ -116,7 +110,7 @@ public class FragmentLogin extends Fragment implements View.OnClickListener {
         Objects.requireNonNull(fragmentManager)
                 .beginTransaction()
                 .setCustomAnimations(R.anim.bounce, 0, 0, 0)
-                .replace(R.id.nav_host_fragment, fr)
+                .replace(R.id.containerLogin, fr)
                 .commit();
     }
 

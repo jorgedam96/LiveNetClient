@@ -7,9 +7,9 @@ import android.net.NetworkInfo;
 
 import java.util.Objects;
 
-class Utilidades {
+public class Utilidades {
 
-    static boolean hayConexion(Activity a) {
+    public static boolean hayConexion(Activity a) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) Objects.requireNonNull(a).getSystemService
                 (Context.CONNECTIVITY_SERVICE);

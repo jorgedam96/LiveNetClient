@@ -37,22 +37,11 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navView, navController);
 
 
-        irALogin();
 
     }
 
 
-    private void irALogin() {
 
-        FragmentLogin fl = new FragmentLogin();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager
-                .beginTransaction()
-                .setCustomAnimations(R.anim.nav_default_enter_anim, R.anim.nav_default_exit_anim, R.anim.nav_default_pop_enter_anim, R.anim.nav_default_pop_exit_anim)
-                .replace(R.id.nav_host_fragment, fl)
-                .commit();
-
-    }
 
     private void hideBottomNavigationView(BottomNavigationView view) {
         view.clearAnimation();

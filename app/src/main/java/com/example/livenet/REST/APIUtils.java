@@ -3,12 +3,12 @@ package com.example.livenet.REST;
 public class APIUtils {
 
     // IP
-    // private static final String server = "80.102.104.105";
+    private static final String server = "80.102.104.105";
 
-    private static final String server = "192.168.0.12";
+    //private static final String server = "192.168.0.12";
 
     // Puerto
-    private static final String port = "8080";
+    private static final String port = "9698";
     // IP
     private static final String API_URL = "http://" + server + ":" + port + "/";
 
