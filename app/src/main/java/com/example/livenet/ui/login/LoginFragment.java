@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.Objects;
@@ -51,6 +52,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     //Chat
     private FirebaseAuth auth;
     private DatabaseReference reference;
+    private FirebaseUser firebaseUser;
 
 
     public static LoginFragment newInstance() {
@@ -163,14 +165,18 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     }
 
     private void irApp(Usuario user) {
-        MainActivity mainActivity = new MainActivity();
-        Intent intent = new Intent((LoginActivity)getActivity(), MainActivity.class);
-        Bundle datos = new Bundle();
-        datos.putString("alias",user.getAlias());
-        datos.putString("correo",user.getCorreo());
-        datos.putString("foto", user.getFoto());
-        intent.putExtras(datos);
-        startActivity(intent);
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(firebaseUser != null) {
+
+            Intent intent = new Intent((LoginActivity) getActivity(), MainActivity.class);
+            Bundle datos = new Bundle();
+            datos.putString("alias", user.getAlias());
+            datos.putString("correo", user.getCorreo());
+            datos.putString("foto", user.getFoto());
+            intent.putExtras(datos);
+            startActivity(intent);
+            getActivity().finish();
+        }
     }
 
 
