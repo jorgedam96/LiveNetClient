@@ -3,6 +3,7 @@ package com.example.livenet.ui.login;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.livenet.LoginActivity;
+import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.UsuariosRest;
@@ -116,7 +119,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
 
     private void comprobarUsuario() {
         //valores de los edit text
-        String usrStr = usuario.getText().toString();
+         String usrStr = usuario.getText().toString();
         String passStr = pass.getText().toString();
         //consulta si existe
 
@@ -126,11 +129,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                 if (response.isSuccessful()) {
                     //hay respuesta
-                    Toast.makeText(root.getContext(), String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+
                     if (response.code() == 200) {
                         //codigo correcto
                         Toast.makeText(root.getContext(), "Login correcto", Toast.LENGTH_SHORT).show();
-                        irApp();
+                        Usuario usr = response.body();
+                        irApp(usr);
+                    }else if (response.code() == 204){
+
+                        Toast.makeText(root.getContext(), "Contraseña o Usuario incorrecto", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -145,14 +152,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         });
     }
 
-    private void irApp() {
-        HomeFragment fr = new HomeFragment();
-        FragmentManager fragmentManager = getFragmentManager();
-        Objects.requireNonNull(fragmentManager)
-                .beginTransaction()
-                .setCustomAnimations(R.anim.bounce, 0, 0, 0)
-                .replace(R.id.nav_host_fragment, fr)
-                .commit();
+    private void irApp(Usuario user) {
+        MainActivity mainActivity = new MainActivity();
+        Intent intent = new Intent((LoginActivity)getActivity(), MainActivity.class);
+        Bundle datos = new Bundle();
+        datos.putString("alias",user.getAlias());
+        datos.putString("correo",user.getCorreo());
+        datos.putString("foto", user.getFoto());
+        intent.putExtras(datos);
+        startActivity(intent);
     }
 
 

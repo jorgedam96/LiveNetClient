@@ -54,4 +54,20 @@ public class Usuario {
                 ", foto='" + foto + '\'' +
                 '}';
     }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
 }
