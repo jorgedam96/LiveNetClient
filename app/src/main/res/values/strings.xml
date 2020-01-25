@@ -17,4 +17,7 @@
     <string name="repite_la_contrase_a">Repite la contraseña</string>
     <string name="volver">Volver</string>
     <string name="entrar">Entrar</string>
+    <string name="chat">Chat</string>
+    <string name="perfil">Perfil</string>
+    <string name="mapa">Mapa</string>
 </resources>
