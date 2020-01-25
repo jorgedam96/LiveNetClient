@@ -6,6 +6,7 @@
         <!--para evitar pantallazo  blanco de inicio-->
         <item name="android:windowDisablePreview">true</item>
 
+
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>

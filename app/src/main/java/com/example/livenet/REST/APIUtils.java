@@ -2,16 +2,26 @@ package com.example.livenet.REST;
 
 public class APIUtils {
 
-    //IP
-    private static final String server = "80.102.104.105";
-    //Puerto
-    private static final String port = "9698";
-    //Servicio
-    private static final String servicio = "/";
-    //IP SERVICIO
-    public static final String API_URL = "http://"+server+":"+port+"/";
+    // IP
+    // private static final String server = "80.102.104.105";
 
-    private APIUtils(){}
+    private static final String server = "192.168.0.12";
 
-   // public static
+    // Puerto
+    private static final String port = "8080";
+    // IP
+    private static final String API_URL = "http://" + server + ":" + port + "/";
+
+    private APIUtils() {
+    }
+
+
+    public static LocalizacionesRest getLocService() {
+        return RetrofitClient.getClient(API_URL).create(LocalizacionesRest.class);
+    }
+
+    public static UsuariosRest getUsuService() {
+        return RetrofitClient.getClient(API_URL).create(UsuariosRest.class);
+    }
+
 }
