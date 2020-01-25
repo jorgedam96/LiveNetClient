@@ -8,18 +8,15 @@
     <fragment
         android:id="@+id/navigation_user"
         android:name="com.example.livenet.ui.home.HomeFragment"
-        android:label="@string/title_home"
         tools:layout="@layout/fragment_usuario" />
 
     <fragment
         android:id="@+id/navigation_map"
         android:name="com.example.livenet.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_mapa" />
 
     <fragment
         android:id="@+id/navigation_chat"
         android:name="com.example.livenet.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
         tools:layout="@layout/fragment_chat" />
 </navigation>
