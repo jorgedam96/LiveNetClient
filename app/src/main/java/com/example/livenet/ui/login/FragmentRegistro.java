@@ -176,6 +176,8 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     Toast.makeText(root.getContext(), "Se ha registrado", Toast.LENGTH_SHORT).show();
 
                     registrarFirebase(user);
+                    irALogin();
+
 
                 } else {
                     Toast.makeText(root.getContext(), "error", Toast.LENGTH_SHORT).show();
@@ -212,7 +214,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    irALogin();
+
                                 }
                             }
                         });

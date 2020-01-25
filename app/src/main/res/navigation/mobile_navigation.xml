@@ -12,7 +12,7 @@
 
     <fragment
         android:id="@+id/navigation_map"
-        android:name="com.example.livenet.ui.mapas.DashboardFragment"
+        android:name="com.example.livenet.ui.mapas.MapaFragment"
         tools:layout="@layout/fragment_mapa" />
 
     <fragment

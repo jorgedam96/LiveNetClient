@@ -141,6 +141,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                         Usuario usr = response.body();
                         usr.setPasswd(passStr);
                         loginFirebase(usr);
+                        irApp(usr);
+
                     }else if (response.code() == 204){
 
                         Toast.makeText(root.getContext(), "Contraseña o Usuario incorrecto", Toast.LENGTH_SHORT).show();
@@ -160,7 +162,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
 
     private void irApp(Usuario user) {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(firebaseUser != null) {
 
             Intent intent = new Intent((LoginActivity) getActivity(), MainActivity.class);
             Bundle datos = new Bundle();
@@ -170,7 +171,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             intent.putExtras(datos);
             startActivity(intent);
             getActivity().finish();
-        }
+
     }
 
 
@@ -179,7 +180,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         auth.signInWithEmailAndPassword(usuario.getCorreo(), usuario.getPasswd()).
                 addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
-                        irApp(usuario);
                     }
                 });
 
