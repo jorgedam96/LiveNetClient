@@ -17,6 +17,6 @@
 
     <fragment
         android:id="@+id/navigation_chat"
-        android:name="com.example.livenet.ui.notifications.NotificationsFragment"
+        android:name="com.example.livenet.ui.chats.ChatFragment"
         tools:layout="@layout/fragment_chat" />
 </navigation>

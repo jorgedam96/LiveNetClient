@@ -24,4 +24,9 @@ public class APIUtils {
         return RetrofitClient.getClient(API_URL).create(UsuariosRest.class);
     }
 
+    public static MensajesRest getMessageService(){
+
+        return RetrofitClient.getClient(API_URL).create(MensajesRest.class);
+    }
+
 }

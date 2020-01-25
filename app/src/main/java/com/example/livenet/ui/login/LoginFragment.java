@@ -26,6 +26,11 @@ import com.example.livenet.Utilidades;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.ui.home.HomeFragment;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.Objects;
 
@@ -43,6 +48,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     private CardView btnRegistrar;
     private UsuariosRest usuariosRest;
 
+    //Chat
+    private FirebaseAuth auth;
+    private DatabaseReference reference;
+
 
     public static LoginFragment newInstance() {
         return new LoginFragment();
@@ -56,7 +65,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
 
         asignarElementosLayout();
         asignarListenerBotones();
-
+        auth = FirebaseAuth.getInstance();
 
         if (Utilidades.hayConexion(getActivity())) {
             usuariosRest = APIUtils.getUsuService();
@@ -134,7 +143,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                         //codigo correcto
                         Toast.makeText(root.getContext(), "Login correcto", Toast.LENGTH_SHORT).show();
                         Usuario usr = response.body();
-                        irApp(usr);
+                        usr.setPasswd(passStr);
+                        loginFirebase(usr);
                     }else if (response.code() == 204){
 
                         Toast.makeText(root.getContext(), "Contraseña o Usuario incorrecto", Toast.LENGTH_SHORT).show();
@@ -163,5 +173,16 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         startActivity(intent);
     }
 
+
+    //Login en firebase con los datos del usuario
+    private void loginFirebase(Usuario usuario){
+        auth.signInWithEmailAndPassword(usuario.getCorreo(), usuario.getPasswd()).
+                addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        irApp(usuario);
+                    }
+                });
+
+    }
 
 }
