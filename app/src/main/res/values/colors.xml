@@ -9,4 +9,6 @@
     <color name="error">#FF3D3D</color>
     <color name="ok">#63FF89</color>
     <color name="disabled">#DADADA</color>
+    <color name="botonCam">#F2FFFFFF</color>
+
 </resources>

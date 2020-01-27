@@ -1,7 +1,5 @@
 package com.example.livenet.ui.mapas;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -16,18 +14,17 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.livenet.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -44,16 +41,17 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 public class MapaFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+
+    /* acercarZoom = false;
+                Toast.makeText(root.getContext(), "mapa tocado", Toast.LENGTH_SHORT).show();
+*/
     private static final int LOCATION_REQUEST_CODE = 1;
     private View root;
     private boolean permisos;
@@ -62,7 +60,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private FusedLocationProviderClient mPosicion;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private boolean acercarCamara;
+    private boolean acercarZoom = true;
+    private Location ultima;
+    private CardView btnCam;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,7 +87,20 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         }
         mPosicion = LocationServices.getFusedLocationProviderClient(root.getContext());
 
+        inicializarBotonCam();
+
+
         return root;
+    }
+
+    private void inicializarBotonCam() {
+        btnCam = root.findViewById(R.id.btnCamaraMapa);
+        btnCam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                acercarZoom = false;
+            }
+        });
     }
 
 
@@ -95,12 +108,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         listenerLocalizacion();
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                acercarCamara = false;
-            }
-        });
+        listenerBotonLocGoogle();
 
         mMap.setMyLocationEnabled(true);
         configurarIUMapa();
@@ -124,24 +132,39 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     }
 
-    private void listenerLocalizacion() {
-        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+
+    private void listenerBotonLocGoogle() {
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
-            public void onMyLocationChange(Location location) {
-                // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
-                if (acercarCamara) {
-                    acercarCamara(location);
-                }
+            public boolean onMyLocationButtonClick() {
+                acercarZoom=true;
+                acercarCamara(ultima);
+                return false;
             }
         });
     }
 
+    private void listenerLocalizacion() {
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                ultima = location;
+                // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
+                acercarCamara(location);
+
+            }
+        });
+
+    }
+
     private void acercarCamara(Location location) {
 
-        CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(
-                new LatLng(location.getLatitude(), location.getLongitude()), 13);
-        mMap.animateCamera(cam);
-        hayLoc = true;
+        if (acercarZoom) {
+            CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(location.getLatitude(), location.getLongitude()), 17);
+            mMap.animateCamera(cam);
+            hayLoc = true;
+        }
 
     }
 
@@ -252,5 +275,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         }
         return (int) Math.ceil(getResources().getDisplayMetrics().density * value);
     }
+
 
 }
