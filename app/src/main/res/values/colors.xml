@@ -6,4 +6,7 @@
     <color name="colorAzulClaro">#96E2FF</color>
     <color name="colorAzulTraslucido">#9996E2FF</color>
     <color name="colorTexto">#35383A</color>
+    <color name="error">#FF3D3D</color>
+    <color name="ok">#63FF89</color>
+    <color name="disabled">#DADADA</color>
 </resources>

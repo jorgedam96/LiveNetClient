@@ -1,6 +1,9 @@
 package com.example.livenet.ui.login;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -22,6 +26,7 @@ import com.example.livenet.model.Usuario;
 import com.example.livenet.ui.login.LoginFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,7 +49,20 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
     private EditText usuario;
     private EditText pass;
     private EditText email;
+    private EditText passcheck;
     private UsuariosRest usuariosRest;
+
+    //Check datos
+    private boolean pwd6; //Tiene minimo 6 caracteres
+    private boolean pwdequals; //Tanto el checking como la principal coinciden
+    private boolean isEmail; //Email valido
+    private boolean nombreok; //Nombre ok
+    private TextInputLayout passlayout;
+    private TextInputLayout passchecklayout;
+    private TextInputLayout emaillayout;
+    private TextInputLayout nombrelayout;
+    private CardView cvRegistrar;
+
 
 
     //Chat
@@ -86,7 +104,16 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
         usuario = root.findViewById(R.id.etUsuarioRegistro);
         pass = root.findViewById(R.id.etPassRegistro);
         email = root.findViewById(R.id.etEmailRegistro);
+        passcheck = root.findViewById(R.id.etRepPassRegistro);
 
+        nombrelayout = root.findViewById(R.id.tilUsuarioRegistro);
+        passlayout = root.findViewById(R.id.tilPassRegistro);
+        passchecklayout = root.findViewById(R.id.tilRepPassRegistro);
+        emaillayout = root.findViewById(R.id.tilEmailRegistro);
+
+        btnRegistrar.setEnabled(false);
+        btnRegistrar.setCardBackgroundColor(getResources().getColor(R.color.disabled));
+        inputCheck();
     }
 
     private void asignarListenerBotones() {
@@ -96,6 +123,131 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
 
     }
 
+    private void inputCheck(){
+        usuario.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String nickname = usuario.getText().toString();
+
+                if(nickname.length() != 0){
+                    nombreok = true;
+                    nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
+                }else{
+                    nombreok = false;
+                    Toast.makeText(getContext(), "Nombre incorrecto", Toast.LENGTH_SHORT).show();
+                    nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
+                }
+                checkData();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        email.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String mail = email.getText().toString();
+                if (mail.contains("@")){
+                    isEmail = true;
+                    emaillayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
+                }else{
+                    isEmail = false;
+                    emaillayout.setBoxStrokeColor(getResources().getColor(R.color.error));
+                    Toast.makeText(getContext(), "Email incorrecto", Toast.LENGTH_SHORT).show();
+                }
+                checkData();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        pass.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String pwd = pass.getText().toString();
+
+                if(pwd.length() >= 6){
+                    pwd6 = true;
+                    passlayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
+                }else{
+                    pwd6 = false;
+                    Toast.makeText(getContext(), "La contraseña debe tener minimo 6 caracteres", Toast.LENGTH_SHORT).show();
+                    passlayout.setBoxStrokeColor(getResources().getColor(R.color.error));
+                }
+
+                checkData();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+
+
+        });
+
+        passcheck.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String pwd = passcheck.getText().toString();
+
+                if(pwd.equals(pass.getText().toString())){
+                    pwdequals = true;
+                    passchecklayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
+                }else{
+                    pwdequals = false;
+                    Toast.makeText(getContext(), "Las contraseñas deben ser iguales", Toast.LENGTH_SHORT).show();
+                    passchecklayout.setBoxStrokeColor(getResources().getColor(R.color.error));
+                }
+
+                checkData();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+
+    private void checkData(){
+        if(nombreok && isEmail && pwd6 && pwdequals){
+
+            btnRegistrar.setEnabled(true);
+            btnRegistrar.setCardBackgroundColor(getResources().getColor(R.color.colorAzulClaro));
+        }else{
+            btnRegistrar.setEnabled(false);
+            btnRegistrar.setCardBackgroundColor(getResources().getColor(R.color.disabled));
+        }
+
+    }
 
     @Override
     public void onClick(View v) {
@@ -176,7 +328,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     Toast.makeText(root.getContext(), "Se ha registrado", Toast.LENGTH_SHORT).show();
 
                     registrarFirebase(user);
-                    irALogin();
+
 
 
                 } else {
@@ -215,6 +367,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
 
+                                    irALogin();
                                 }
                             }
                         });
