@@ -8,7 +8,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/gradient"
     android:id="@+id/Login"
-    tools:context=".FragmentLogin">
+    tools:context="ui.login.LoginFragment">
 
 
 <LinearLayout

@@ -62,6 +62,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private FusedLocationProviderClient mPosicion;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private boolean acercarCamara;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,16 +94,15 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+        listenerLocalizacion();
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
-            public void onMyLocationChange(Location location) {
-               // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
-
-                acercarCamara(location);
+            public void onMapClick(LatLng latLng) {
+                acercarCamara = false;
             }
         });
-        mMap.setMyLocationEnabled(true);
 
+        mMap.setMyLocationEnabled(true);
         configurarIUMapa();
 
 
@@ -120,17 +120,29 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 */
 
 
-       //marcardorConCara();
+        //marcardorConCara();
 
     }
 
+    private void listenerLocalizacion() {
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
+                if (acercarCamara) {
+                    acercarCamara(location);
+                }
+            }
+        });
+    }
+
     private void acercarCamara(Location location) {
-        if (!hayLoc) {
-            CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(location.getLatitude(), location.getLongitude()), 20);
-            mMap.animateCamera(cam);
-            hayLoc = true;
-        }
+
+        CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(
+                new LatLng(location.getLatitude(), location.getLongitude()), 13);
+        mMap.animateCamera(cam);
+        hayLoc = true;
+
     }
 
 
@@ -151,7 +163,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -159,9 +170,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     public boolean onMarkerClick(Marker marker) {
         return false;
     }
-
-
-
 
 
     private void configurarIUMapa() {
@@ -173,7 +181,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
 
-       // mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(root.getContext(), R.raw.estilo_mapa));
+        // mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(root.getContext(), R.raw.estilo_mapa));
 
 
         UiSettings uiSettings = mMap.getUiSettings();
@@ -185,16 +193,13 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
 
-
-
-
     private void marcardorConCara() {
 
 
         LatLng latLng = new LatLng(4.62642, 38.411363);
         MarkerOptions options = new MarkerOptions().position(latLng);
         Bitmap bitmap = createUserBitmap();
-        if(bitmap!=null){
+        if (bitmap != null) {
             options.title("Ketan Ramani");
             options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
             options.anchor(0.5f, 0.907f);
@@ -233,7 +238,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
             canvas.restore();
             try {
                 canvas.setBitmap(null);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         } catch (Throwable t) {
             t.printStackTrace();
         }
