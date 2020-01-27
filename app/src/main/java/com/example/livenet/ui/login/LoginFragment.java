@@ -11,7 +11,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -63,6 +68,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private DatabaseReference reference;
     private FirebaseUser firebaseUser;
 
+    //Loading
+    private RelativeLayout loadingLayout;
+    private ImageView ivLoading;
+    private TextView tvLoading;
+    private Animation rotation,intermitente;
+
 
     public static LoginFragment newInstance() {
         return new LoginFragment();
@@ -104,6 +115,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         btnEntrar = root.findViewById(R.id.card_viewLoginEntrar);
         btnRegistrar = root.findViewById(R.id.card_viewLoginRegistrar);
 
+        loadingLayout = root.findViewById(R.id.layoutLoadingLogin);
+        ivLoading = root.findViewById(R.id.ivLoadingLogin);
+        tvLoading = root.findViewById(R.id.tvLogeando);
+
     }
 
     @Override
@@ -141,6 +156,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     }
 
     private void comprobarUsuario() {
+        //Loading
+        loadingLayout.setVisibility(View.VISIBLE);
+        rotation = AnimationUtils.loadAnimation(getContext(), R.anim.rotation);
+        ivLoading.startAnimation(rotation);
+        intermitente = AnimationUtils.loadAnimation(getContext(), R.anim.intermitente);
+        tvLoading.startAnimation(intermitente);
+
+
         //valores de los edit text
         String usrStr = usuario.getText().toString();
         String passStr = pass.getText().toString();
@@ -159,11 +182,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                         Usuario usr = response.body();
                         usr.setPasswd(passStr);
                         loginFirebase(usr);
-                        irApp(usr);
+
 
                     } else if (response.code() == 204) {
 
                         Toast.makeText(root.getContext(), "Contraseña o Usuario incorrecto", Toast.LENGTH_SHORT).show();
+                        loadingLayout.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -173,7 +197,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             public void onFailure(Call<Usuario> call, Throwable t) {
                 Log.e("ERROR: ", Objects.requireNonNull(t.getMessage()));
                 Toast.makeText(root.getContext(), "No se puede iniciar Sesión", Toast.LENGTH_SHORT).show();
-
+                loadingLayout.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -198,6 +222,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         auth.signInWithEmailAndPassword(usuario.getCorreo(), usuario.getPasswd()).
                 addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        irApp(usuario);
                     }
                 });
 

@@ -8,7 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -64,7 +69,12 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
     private TextInputLayout nombrelayout;
     private CardView cvRegistrar;
 
-
+    //Loading
+    private RelativeLayout layoutLoading;
+    private ImageView ivLoading;
+    private Animation rotation;
+    private Animation intermitente;
+    private TextView registrando;
 
     //Chat
     private FirebaseAuth auth;
@@ -111,6 +121,11 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
         passlayout = root.findViewById(R.id.tilPassRegistro);
         passchecklayout = root.findViewById(R.id.tilRepPassRegistro);
         emaillayout = root.findViewById(R.id.tilEmailRegistro);
+
+        //Loading
+        layoutLoading = root.findViewById(R.id.layoutLoading);
+        ivLoading = root.findViewById(R.id.ivLoading);
+        registrando = root.findViewById(R.id.tvRegistrando);
 
         btnRegistrar.setEnabled(false);
         btnRegistrar.setCardBackgroundColor(getResources().getColor(R.color.disabled));
@@ -274,6 +289,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
     }
 
     private void irALogin() {
+        layoutLoading.setVisibility(View.INVISIBLE);
         auth.signOut();
         LoginFragment fl = new LoginFragment();
         FragmentManager fragmentManager = getFragmentManager();
@@ -285,6 +301,11 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
     }
 
     private void comprobarSiExisteAlias() {
+        layoutLoading.setVisibility(View.VISIBLE);
+        rotation = AnimationUtils.loadAnimation(getContext(), R.anim.rotation);
+        ivLoading.startAnimation(rotation);
+        intermitente = AnimationUtils.loadAnimation(getContext(), R.anim.intermitente);
+        registrando.startAnimation(intermitente);
 
         String usrStr = usuario.getText().toString();
         //consulta si existe
@@ -298,6 +319,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     Toast.makeText(root.getContext(), String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                     if (response.code() == 200) {
                         Toast.makeText(root.getContext(), "El nombre de usuario ya existe", Toast.LENGTH_SHORT).show();
+                        layoutLoading.setVisibility(View.INVISIBLE);
                     } else {
                         //comprobar si ha rellenado los campos y comprobar email
                         //despues insertar
@@ -305,7 +327,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     }
                 } else {
                     Toast.makeText(root.getContext(), "No response", Toast.LENGTH_SHORT).show();
-
+                    layoutLoading.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -314,7 +336,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
             public void onFailure(Call<Usuario> call, Throwable t) {
                 Log.e("ERROR: ", Objects.requireNonNull(t.getMessage()));
                 Toast.makeText(root.getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-
+                layoutLoading.setVisibility(View.INVISIBLE);
             }
         });
     }

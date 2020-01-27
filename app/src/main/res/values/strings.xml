@@ -20,4 +20,7 @@
     <string name="chat">Chat</string>
     <string name="perfil">Perfil</string>
     <string name="mapa">Mapa</string>
+    <string name="loading">Imagen de carga</string>
+    <string name="registrando">Registrando...</string>
+    <string name="logeando">Conectandose...</string>
 </resources>

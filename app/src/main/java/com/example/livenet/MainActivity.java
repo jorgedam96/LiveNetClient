@@ -14,6 +14,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.livenet.model.Usuario;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -29,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView navView;
     NavController navController;
     Usuario logged;
+    FirebaseUser usuario;
+    FirebaseAuth auth;
+    FirebaseDatabase database;
 
 
     @Override
@@ -57,6 +62,13 @@ public class MainActivity extends AppCompatActivity {
         logged.setAlias(extras.getString("alias"));
         logged.setCorreo(extras.getString("correo"));
         logged.setFoto(extras.getString("foto"));
+
+        auth = FirebaseAuth.getInstance();
+        usuario = auth.getCurrentUser();
+        if(usuario != null){
+            Toast.makeText(getApplicationContext(),"Logeado", Toast.LENGTH_SHORT).show();
+
+        }
 
     }
 
@@ -124,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        FirebaseAuth.getInstance().signOut();
+        auth.signOut();
         super.onDestroy();
     }
 }
