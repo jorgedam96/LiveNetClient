@@ -1,5 +1,6 @@
 package com.example.livenet.ui.usuario;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,8 +28,14 @@ public class HomeFragment extends Fragment {
         Objects.requireNonNull(((MainActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
         //Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         menuBottom = Objects.requireNonNull(((MainActivity) getActivity())).getNavView();
+        View photoHeader = root.findViewById(R.id.photoHeader);
 
-
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            /* For devices equal or higher than lollipop set the translation above everything else */
+            photoHeader.setTranslationZ(6);
+            /* Redraw the view to show the translation */
+            photoHeader.invalidate();
+        }
         return root;
     }
 }

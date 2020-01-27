@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The background image of Tokyo we will use -->
+    <item android:height="1000dp">
+        <bitmap
+            android:src="@drawable/shinjuku" android:gravity="top" />
+    </item>
+</layer-list>

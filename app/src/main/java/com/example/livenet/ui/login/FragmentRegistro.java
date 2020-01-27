@@ -30,6 +30,7 @@ import com.example.livenet.Utilidades;
 import com.example.livenet.model.Usuario;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -382,7 +383,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                         reference = FirebaseDatabase.getInstance().getReference("Users").child(userid);
 
                         HashMap<String, String> hashMap = new HashMap<>();
-
+                        usuario.setFoto("default");
                         hashMap.put("id", userid);
                         hashMap.put("username", usuario.getAlias());
                         hashMap.put("image", usuario.getFoto());
@@ -393,8 +394,12 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     irALogin();
+                                }else{
+                                    layoutLoading.setVisibility(View.INVISIBLE);
                                 }
                             }
+
+
                         });
                     }
                 });

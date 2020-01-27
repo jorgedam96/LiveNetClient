@@ -57,4 +57,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
     apply plugin: 'com.google.gms.google-services'
 
+
+    //Perfil de Usuario
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
+
 }
