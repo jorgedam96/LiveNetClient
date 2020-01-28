@@ -16,20 +16,20 @@ public class Localizacion {
 
     @SerializedName("latitud")
     @Expose
-    private float latitud;
+    private double latitud;
 
     @SerializedName("longitud")
     @Expose
-    private float longitud;
+    private double longitud;
 
     @SerializedName("fecha_hora")
     @Expose
-    private float fecha_hora;
+    private String fecha_hora;
 
     public Localizacion() {
     }
 
-    public Localizacion(String alias, float latitud, float longitud, float fecha_hora) {
+    public Localizacion(String alias, double latitud, double longitud, String fecha_hora) {
         this.alias = alias;
         this.latitud = latitud;
         this.longitud = longitud;
@@ -44,27 +44,27 @@ public class Localizacion {
         this.alias = alias;
     }
 
-    public float getLatitud() {
+    public double getLatitud() {
         return latitud;
     }
 
-    public void setLatitud(float latitud) {
+    public void setLatitud(double latitud) {
         this.latitud = latitud;
     }
 
-    public float getLongitud() {
+    public double getLongitud() {
         return longitud;
     }
 
-    public void setLongitud(float longitud) {
+    public void setLongitud(double longitud) {
         this.longitud = longitud;
     }
 
-    public float getFecha_hora() {
+    public String getFecha_hora() {
         return fecha_hora;
     }
 
-    public void setFecha_hora(float fecha_hora) {
+    public void setFecha_hora(String fecha_hora) {
         this.fecha_hora = fecha_hora;
     }
 

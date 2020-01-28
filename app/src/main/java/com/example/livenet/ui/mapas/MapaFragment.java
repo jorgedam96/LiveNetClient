@@ -12,6 +12,8 @@ import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -27,6 +29,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.livenet.R;
+import com.example.livenet.REST.APIUtils;
+import com.example.livenet.REST.LocalizacionesRest;
+import com.example.livenet.model.Localizacion;
+import com.example.livenet.model.LoginBody;
+import com.example.livenet.model.Usuario;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -44,29 +51,40 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
 public class MapaFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
 
-    /* acercarZoom = false;
-                Toast.makeText(root.getContext(), "mapa tocado", Toast.LENGTH_SHORT).show();
-*/
     private static final int LOCATION_REQUEST_CODE = 1;
     private View root;
     private boolean permisos;
     private boolean hayLoc = false;
     private GoogleMap mMap;
     private FusedLocationProviderClient mPosicion;
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
     private boolean acercarZoom = true;
+    private Location anterior;
     private Location ultima;
     private CardView btnCam;
+    private Handler handler;
+    private Runnable runnable;
+    private LocalizacionesRest locRest;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        handler = new Handler();
 
     }
 
@@ -89,6 +107,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
         inicializarBotonCam();
 
+        locRest = APIUtils.getLocService();
 
         return root;
     }
@@ -113,22 +132,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         mMap.setMyLocationEnabled(true);
         configurarIUMapa();
 
-
-       /* mGoogleApiClient = new GoogleApiClient.Builder(root.getContext())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
-        // Crear el LocationRequest
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)        // 10 segundos en milisegundos
-                .setFastestInterval(1000); // 1 segundo en milisegundos
-*/
-
-
         //marcardorConCara();
+        //activarHiloUbicacionesRest();
+
 
     }
 
@@ -137,7 +143,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                acercarZoom=true;
+                acercarZoom = true;
                 acercarCamara(ultima);
                 return false;
             }
@@ -151,6 +157,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                 ultima = location;
                 // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
                 acercarCamara(location);
+
 
             }
         });
@@ -213,6 +220,101 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         mMap.setTrafficEnabled(false);
 
 
+    }
+
+    private void activarHiloUbicacionesRest() {
+        Timer timer = new Timer();
+        TimerTask doAsyncTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Objects.requireNonNull(getActivity()).runOnUiThread(runnable = new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    enviarUbicacion();
+                                    solicitarUbicacionesRest();
+                                }
+                            });
+
+                        } catch (Exception e) {
+                            Log.e("timer", Objects.requireNonNull(e.getMessage()));
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(doAsyncTask, 0, 5000);
+    }
+
+    private void enviarUbicacion() {
+        if (anterior != ultima) {
+
+            try {
+
+                Call<Localizacion> call = locRest.create(new Localizacion(
+                        "jorge",
+                        ultima.getLatitude(),
+                        ultima.getLongitude(),
+                        "fecha_hora"));
+
+                call.enqueue(new Callback<Localizacion>() {
+                    @Override
+                    public void onResponse(Call<Localizacion> call, Response<Localizacion> response) {
+                        Log.i("enviarUbicacion", response.toString());
+                        anterior = ultima;
+                    }
+
+                    @Override
+                    public void onFailure(Call<Localizacion> call, Throwable t) {
+                        Log.e("enviarUbicacion", t.toString());
+
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("enviarUbicacion", e.getMessage());
+            }
+        }
+    }
+
+    private void solicitarUbicacionesRest() {
+        try {
+            Call<List<Localizacion>> call = locRest.findAll();
+            call.enqueue(new Callback<List<Localizacion>>() {
+                @Override
+                public void onResponse(Call<List<Localizacion>> call, Response<List<Localizacion>> response) {
+                    if (response.isSuccessful()) {
+                        //hay respuesta
+                        Log.i("respuesta locs", response.toString());
+                        if (response.code() == 200) {
+                            //codigo correcto
+                            recorrerListaLocs(response.body());
+                        } else {
+                            Log.e("respuesta locs", String.valueOf(response.code()));
+
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Localizacion>> call, Throwable t) {
+                }
+            });
+        } catch (Exception e) {
+            Log.e("SolicitarUbicaciones", e.getMessage());
+        }
+    }
+
+    private void recorrerListaLocs(List<Localizacion> localizaciones) {
+        for (int i = 0; i < localizaciones.size(); i++) {
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
+                    .title(localizaciones.get(i).getAlias())
+                    .snippet(localizaciones.get(i).getAlias()));
+        }
     }
 
 

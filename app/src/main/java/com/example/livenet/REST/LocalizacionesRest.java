@@ -21,14 +21,14 @@ public interface LocalizacionesRest {
     @GET("localizaciones/{alias}")
     Call<Localizacion> findByAlias(@Path("alias") String alias);
 
-    @POST("actualizarLoc")
+    @PUT("actualizarLoc")
     Call<Localizacion> create(@Body Localizacion loc);
 
     @DELETE("localizaciones/{alias}")
     Call<Localizacion> delete(@Path("alias") String alias);
 
     @PUT("localizaciones/{alias}")
-    Call<Localizacion> update(@Path("alias") String alias, @Body Localizacion localizacion);
+    Call<Localizacion> update( @Body Localizacion localizacion);
 
 
 }
