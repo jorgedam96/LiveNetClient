@@ -21,7 +21,7 @@
         android:layout_width="59dp"
         android:layout_height="59dp"
         android:background="@drawable/marker_vacio"
-        android:backgroundTint="@color/colorPrimary">
+        android:backgroundTint="@color/azulRoyal">
 
 
     </RelativeLayout>

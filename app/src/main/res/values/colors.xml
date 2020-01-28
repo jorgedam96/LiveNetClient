@@ -10,5 +10,6 @@
     <color name="ok">#63FF89</color>
     <color name="disabled">#DADADA</color>
     <color name="botonCam">#F2FFFFFF</color>
+    <color name="azulRoyal">#4169E1</color>
 
 </resources>
