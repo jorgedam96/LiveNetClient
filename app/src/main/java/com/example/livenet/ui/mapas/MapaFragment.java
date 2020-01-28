@@ -86,7 +86,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private Runnable runnable;
     private LocalizacionesRest locRest;
     private Timer timer;
-    private String aliasLogeado="";
+    private String aliasLogeado = "";
 
     @Override
     public void setRetainInstance(boolean retain) {
@@ -341,10 +341,12 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
-        mMap.clear();
-        for (int i = 0; i < localizaciones.size(); i++) {
+        try {
 
-            if (!aliasLogeado.equals(localizaciones.get(i).getAlias())) {
+
+            mMap.clear();
+            for (int i = 0; i < localizaciones.size(); i++) {
+
                 mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
                         .title(localizaciones.get(i).getAlias())
@@ -358,9 +360,10 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                         .strokeColor(Color.argb(100, 150, 226, 255)));
 
             }
+        } catch (Exception e) {
+            if (e.getMessage() != null)
+                Log.e("recorrer locs", e.getMessage());
         }
-
-
     }
 
 
