@@ -26,17 +26,13 @@ public class Localizacion {
     @Expose
     private Date fecha_hora;
 
-    @SerializedName("precision")
-    @Expose
-    private float precision;
 
 
-    public Localizacion(String alias, double latitud, double longitud, Date fecha_hora,float precision) {
+    public Localizacion(String alias, double latitud, double longitud, Date fecha_hora) {
         this.alias = alias;
         this.latitud = latitud;
         this.longitud = longitud;
         this.fecha_hora = fecha_hora;
-        this.precision =precision;
     }
 
     public String getAlias() {
@@ -71,13 +67,6 @@ public class Localizacion {
         this.fecha_hora = fecha_hora;
     }
 
-    public float getPrecision() {
-        return precision;
-    }
-
-    public void setPrecision(float precision) {
-        this.precision = precision;
-    }
 
     @Override
     public String toString() {
