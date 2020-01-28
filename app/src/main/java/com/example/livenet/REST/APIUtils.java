@@ -29,4 +29,9 @@ public class APIUtils {
         return RetrofitClient.getClient(API_URL).create(MensajesRest.class);
     }
 
+    public static AmigosRest getAmigosService(){
+
+        return RetrofitClient.getClient(API_URL).create(AmigosRest.class);
+    }
+
 }

@@ -3,7 +3,9 @@ package com.example.livenet.BBDD;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -19,7 +21,7 @@ public class DBC extends SQLiteOpenHelper {
             "    CADUCIDAD DATETIME NOT NULL);";
 
     private static final String lnAmigosSql ="CREATE TABLE AMIGOS(\n" +
-            "    ALIAS VARCHAR(255) NOT NULL,\n" +
+            "    ALIAS VARCHAR(255) NOT NULL PRIMARY KEY,\n" +
             "    FOTO TEXT NOT NULL);";
 
 
@@ -49,12 +51,12 @@ public class DBC extends SQLiteOpenHelper {
         //Si hemos abierto correctamente la base de datos
         if (bd != null) {
             //Seleccionamos todos
-            Cursor c = bd.rawQuery(" SELECT ALIAS, FOTO FROM AMIGOS", null);
+            Cursor c = bd.rawQuery("SELECT ALIAS, FOTO FROM AMIGOS", null);
             //Nos aseguramos de que existe al menos un registro
             if (c.moveToFirst()) {
                 //Recorremos el cursor hasta que no haya más registros
                 do {
-                    amigos.add(new String[]{c.getString(1),c.getString(2)});
+                    amigos.add(new String[]{c.getString(0),c.getString(1)});
                 } while (c.moveToNext());
             }
             //Cerramos la base de datos
@@ -79,9 +81,15 @@ public class DBC extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put("alias", amigo[0]);
+        values.put("foto", amigo[1]);
+        try {
+            db.insert("Amigos", null, values);
+        }catch(SQLiteException ex){
+            db.update("Amigos", values, "alias=" + amigo[0], null);
 
-        db.insert("Amigos", null, values);
-
+        }
+        db.close();
     }
 
     public void update(String[] amigo){
