@@ -8,9 +8,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.livenet.BBDD.DBC;
 import com.example.livenet.R;
 
-public class ChatFragment extends Fragment {
+public class ChatsFragment extends Fragment {
+    private DBC dbc;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 

@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import android.os.Bundle;
 import android.view.WindowManager;
 
+import com.example.livenet.BBDD.DBC;
 import com.example.livenet.ui.login.LoginFragment;
 
 import java.util.Objects;
@@ -15,6 +16,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DBC dbc = new DBC(getApplicationContext(), "localCfgBD", null, 1);
+        dbc.close();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.containerLogin, LoginFragment.newInstance())
