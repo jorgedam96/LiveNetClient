@@ -6,17 +6,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
@@ -34,19 +31,17 @@ import com.example.livenet.REST.LocalizacionesRest;
 import com.example.livenet.model.Localizacion;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -63,9 +58,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MapaFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+public class MapaFragment extends Fragment implements OnMapReadyCallback{
 
 
     private View root;
@@ -80,7 +73,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private Timer timer;
     private String aliasLogeado = "";
     private Marker miMarker;
-
+    private ArrayList<Marker> marcadores = new ArrayList<>();
 
     @Override
     public void setRetainInstance(boolean retain) {
@@ -180,8 +173,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                             .position(new LatLng(location.getLatitude(), location.getLongitude()))
                             .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
                             .title("Tú"));
-                }else{
-                    animateMarker(location, miMarker);
+                } else {
+                    animateMarker(location.getLatitude(), location.getLongitude(), miMarker);
                 }
 
             }
@@ -211,41 +204,15 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        Toast.makeText(root.getContext(),location.toString(),Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        return false;
-    }
-
 
     private void configurarIUMapa() {
 
-        mMap.setOnMarkerClickListener(this);
+        //mMap.setOnMarkerClickListener(this);
         mMap.setMyLocationEnabled(true);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
 
-        // mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(root.getContext(), R.raw.estilo_mapa));
-
+        //mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(root.getContext(), R.raw.estilo_mapa));
 
         UiSettings uiSettings = mMap.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
@@ -293,7 +260,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     private void enviarUbicacion() {
         if (anterior != ultima) {
-
             try {
                 FirebaseAuth auth = FirebaseAuth.getInstance();
                 FirebaseUser user = auth.getCurrentUser();
@@ -345,7 +311,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                             }
                         } else {
                             Log.e("respuesta locs", String.valueOf(response.code()));
-
                         }
                     }
                 }
@@ -363,6 +328,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         try {
             mMap.clear();
             ponerMiMarcador(ultima);
+
             for (int i = 0; i < localizaciones.size(); i++) {
                 if (!localizaciones.get(i).getAlias().equals(aliasLogeado)) {
                     mMap.addMarker(new MarkerOptions()
@@ -377,6 +343,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                             .strokeColor(Color.argb(100, 150, 226, 255)));
                 }
             }
+
+
         } catch (Exception e) {
             if (e.getMessage() != null)
                 Log.e("recorrer locs", e.getMessage());
@@ -417,10 +385,10 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         super.onDestroy();
     }
 
-    public static void animateMarker(final Location destination, final Marker marker) {
+    public static void animateMarker(double lat, double lon, final Marker marker) {
         if (marker != null) {
             final LatLng startPosition = marker.getPosition();
-            final LatLng endPosition = new LatLng(destination.getLatitude(), destination.getLongitude());
+            final LatLng endPosition = new LatLng(lat, lon);
 
             //final float startRotation = marker.getRotation();
 
@@ -429,7 +397,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
             valueAnimator.setDuration(600); // duration 1 second
             valueAnimator.setInterpolator(new LinearInterpolator());
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override public void onAnimationUpdate(ValueAnimator animation) {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
                     try {
                         float v = animation.getAnimatedFraction();
                         LatLng newPosition = latLngInterpolator.interpolate(v, startPosition, endPosition);
@@ -444,6 +413,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
             valueAnimator.start();
         }
     }
+
     private interface LatLngInterpolator {
         LatLng interpolate(float fraction, LatLng a, LatLng b);
 
@@ -462,3 +432,22 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         }
     }
 }
+
+/*
+
+
+for (int i = 0; i < localizaciones.size(); i++) {
+                if (!localizaciones.get(i).getAlias().equals(aliasLogeado)) {
+                    marcadores.add(mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
+                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                            .title(localizaciones.get(i).getAlias())
+                            .visible(false)));
+                }
+
+            }
+
+            for (int j = 0; j < marcadores.size(); j++) {
+                marcadores.get(j).setVisible(true);
+                animateMarker(localizaciones.get(j).getLatitud(), localizaciones.get(j).getLongitud(), marcadores.get(j));
+            }*/
