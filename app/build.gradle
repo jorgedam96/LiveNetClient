@@ -60,5 +60,5 @@ dependencies {
     //Perfil de Usuario
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
-
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 }

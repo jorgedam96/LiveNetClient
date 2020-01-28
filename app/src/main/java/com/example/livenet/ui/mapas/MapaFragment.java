@@ -1,5 +1,7 @@
 package com.example.livenet.ui.mapas;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -14,14 +16,17 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
@@ -62,6 +67,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -140,14 +146,21 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        listenerLocalizacion();
-        listenerBotonLocGoogle();
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
 
-        mMap.setMyLocationEnabled(true);
-        configurarIUMapa();
+                listenerLocalizacion();
+                listenerBotonLocGoogle();
 
-        //marcardorConCara();
-        activarHiloUbicacionesRest();
+                mMap.setMyLocationEnabled(true);
+                configurarIUMapa();
+
+                //marcardorConCara();
+                activarHiloUbicacionesRest();
+
+            }
+        });
 
 
     }
@@ -349,6 +362,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
                 mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
+                        .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
                         .title(localizaciones.get(i).getAlias()));
 
                 mMap.addCircle(new CircleOptions()
@@ -365,63 +379,25 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
 
-    private void marcardorConCara(LatLng latLng) {
 
+    public static Bitmap createCustomMarker(Context context, @DrawableRes int resource) {
 
-        MarkerOptions options = new MarkerOptions().position(latLng);
-        Bitmap bitmap = createUserBitmap();
-        if (bitmap != null) {
-            options.title("Ketan Ramani");
-            options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
-            options.anchor(0.5f, 0.907f);
-            Marker marker = mMap.addMarker(options);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            // mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-        }
-    }
+        View marker = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.marker, null);
 
-    private Bitmap createUserBitmap() {
-        Bitmap result = null;
-        try {
-            result = Bitmap.createBitmap(dp(62), dp(76), Bitmap.Config.ARGB_8888);
-            result.eraseColor(Color.TRANSPARENT);
-            Canvas canvas = new Canvas(result);
-            Drawable drawable = getResources().getDrawable(R.drawable.livepin);
-            drawable.setBounds(0, 0, dp(62), dp(76));
-            drawable.draw(canvas);
+        CircleImageView markerImage = (CircleImageView) marker.findViewById(R.id.user_dp);
+        markerImage.setImageResource(resource);
 
-            Paint roundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            RectF bitmapRect = new RectF();
-            canvas.save();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        marker.setLayoutParams(new ViewGroup.LayoutParams(52, ViewGroup.LayoutParams.WRAP_CONTENT));
+        marker.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        marker.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
+        marker.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(marker.getMeasuredWidth(), marker.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        marker.draw(canvas);
 
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-            if (bitmap != null) {
-                BitmapShader shader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                Matrix matrix = new Matrix();
-                float scale = dp(52) / (float) bitmap.getWidth();
-                matrix.postTranslate(dp(5), dp(5));
-                matrix.postScale(scale, scale);
-                roundPaint.setShader(shader);
-                shader.setLocalMatrix(matrix);
-                bitmapRect.set(dp(5), dp(5), dp(52 + 5), dp(52 + 5));
-                canvas.drawRoundRect(bitmapRect, dp(26), dp(26), roundPaint);
-            }
-            canvas.restore();
-            try {
-                canvas.setBitmap(null);
-            } catch (Exception e) {
-            }
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-        return result;
-    }
-
-    public int dp(float value) {
-        if (value == 0) {
-            return 0;
-        }
-        return (int) Math.ceil(getResources().getDisplayMetrics().density * value);
+        return bitmap;
     }
 
     @Override
@@ -429,4 +405,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         timer.cancel();
         super.onDestroy();
     }
+
+
 }
