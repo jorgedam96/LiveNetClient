@@ -4,7 +4,7 @@ package com.example.livenet.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
+import java.util.Date;
 
 
 public class Localizacion {
@@ -24,16 +24,19 @@ public class Localizacion {
 
     @SerializedName("fecha_hora")
     @Expose
-    private String fecha_hora;
+    private Date fecha_hora;
 
-    public Localizacion() {
-    }
+    @SerializedName("precision")
+    @Expose
+    private float precision;
 
-    public Localizacion(String alias, double latitud, double longitud, String fecha_hora) {
+
+    public Localizacion(String alias, double latitud, double longitud, Date fecha_hora,float precision) {
         this.alias = alias;
         this.latitud = latitud;
         this.longitud = longitud;
         this.fecha_hora = fecha_hora;
+        this.precision =precision;
     }
 
     public String getAlias() {
@@ -60,12 +63,20 @@ public class Localizacion {
         this.longitud = longitud;
     }
 
-    public String getFecha_hora() {
+    public Date getFecha_hora() {
         return fecha_hora;
     }
 
-    public void setFecha_hora(String fecha_hora) {
+    public void setFecha_hora(Date fecha_hora) {
         this.fecha_hora = fecha_hora;
+    }
+
+    public float getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(float precision) {
+        this.precision = precision;
     }
 
     @Override
