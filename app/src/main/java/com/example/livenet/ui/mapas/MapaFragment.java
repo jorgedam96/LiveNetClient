@@ -3,28 +3,16 @@ package com.example.livenet.ui.mapas;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -38,13 +26,10 @@ import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.LocalizacionesRest;
 import com.example.livenet.model.Localizacion;
-import com.example.livenet.model.LoginBody;
-import com.example.livenet.model.Usuario;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -61,7 +46,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
@@ -71,19 +55,14 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class MapaFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
 
-    private static final int LOCATION_REQUEST_CODE = 1;
     private View root;
-    private boolean permisos;
-    private boolean hayLoc = false;
     private GoogleMap mMap;
-    private FusedLocationProviderClient mPosicion;
     private boolean acercarZoom = true;
     private Location anterior;
     private Location ultima;
@@ -93,6 +72,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private LocalizacionesRest locRest;
     private Timer timer;
     private String aliasLogeado = "";
+    private Marker miMarker;
+
 
     @Override
     public void setRetainInstance(boolean retain) {
@@ -103,7 +84,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         handler = new Handler();
-
         aliasLogeado = ((MainActivity) getActivity()).getLogged().getAlias();
     }
 
@@ -122,7 +102,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         } catch (Exception e) {
             Log.e("mapa", e.getMessage());
         }
-        mPosicion = LocationServices.getFusedLocationProviderClient(root.getContext());
 
         inicializarBotonCam();
 
@@ -149,6 +128,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
+
 
                 listenerLocalizacion();
                 listenerBotonLocGoogle();
@@ -186,9 +166,22 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                 // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
                 acercarCamara(location);
 
+                ponerMiMarcador(location);
+
 
             }
         });
+
+    }
+
+    private void ponerMiMarcador(Location l) {
+        if (miMarker != null) {
+            miMarker.remove();
+        }
+        miMarker = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(l.getLatitude(), l.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                .title("Tú"));
 
     }
 
@@ -197,7 +190,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
             CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(
                     new LatLng(location.getLatitude(), location.getLongitude()), 17);
             mMap.animateCamera(cam);
-            hayLoc = true;
         }
 
     }
@@ -232,9 +224,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private void configurarIUMapa() {
 
         mMap.setOnMarkerClickListener(this);
-        if (permisos) {
-            mMap.setMyLocationEnabled(true);
-        }
+        mMap.setMyLocationEnabled(true);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
 
@@ -251,7 +241,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     private void activarHiloUbicacionesRest() {
         try {
-
 
             timer = new Timer();
             TimerTask doAsyncTask = new TimerTask() {
@@ -271,7 +260,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                                 });
 
                             } catch (Exception e) {
-                                Log.e("timer", Objects.requireNonNull(e.getMessage()));
+                                if (e.getMessage() != null)
+                                    Log.e("timer", e.getMessage());
                             }
                         }
                     });
@@ -355,29 +345,27 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
         try {
-
-
             mMap.clear();
+            ponerMiMarcador(ultima);
             for (int i = 0; i < localizaciones.size(); i++) {
+                if (!localizaciones.get(i).getAlias().equals(aliasLogeado)) {
+                    mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
+                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                            .title(localizaciones.get(i).getAlias()));
 
-                mMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
-                        .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
-                        .title(localizaciones.get(i).getAlias()));
-
-                mMap.addCircle(new CircleOptions()
-                        .center(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
-                        .radius(20)
-                        .fillColor(Color.argb(60, 150, 226, 255))
-                        .strokeColor(Color.argb(100, 150, 226, 255)));
-
+                    mMap.addCircle(new CircleOptions()
+                            .center(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
+                            .radius(20)
+                            .fillColor(Color.argb(60, 150, 226, 255))
+                            .strokeColor(Color.argb(100, 150, 226, 255)));
+                }
             }
         } catch (Exception e) {
             if (e.getMessage() != null)
                 Log.e("recorrer locs", e.getMessage());
         }
     }
-
 
 
     public static Bitmap createCustomMarker(Context context, @DrawableRes int resource) {
@@ -402,7 +390,14 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     @Override
     public void onDestroy() {
-        timer.cancel();
+        try {
+            handler.removeCallbacksAndMessages(null);
+            if (timer != null)
+                timer.cancel();
+        } catch (Exception e) {
+            if (e.getMessage() != null)
+                Log.e("timerDestroy", e.getMessage());
+        }
         super.onDestroy();
     }
 
