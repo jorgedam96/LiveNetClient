@@ -48,6 +48,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -84,12 +85,20 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private Handler handler;
     private Runnable runnable;
     private LocalizacionesRest locRest;
+    private Timer timer;
+    private String aliasLogeado;
+
+    @Override
+    public void setRetainInstance(boolean retain) {
+        super.setRetainInstance(retain);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         handler = new Handler();
 
+        aliasLogeado = ((MainActivity) getActivity()).getLogged().getAlias();
     }
 
     @Override
@@ -130,6 +139,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
         listenerLocalizacion();
         listenerBotonLocGoogle();
 
@@ -159,6 +169,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
             @Override
             public void onMyLocationChange(Location location) {
                 ultima = location;
+
                 // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
                 acercarCamara(location);
 
@@ -169,7 +180,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
     private void acercarCamara(Location location) {
-
         if (acercarZoom) {
             CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(
                     new LatLng(location.getLatitude(), location.getLongitude()), 17);
@@ -227,31 +237,39 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
     private void activarHiloUbicacionesRest() {
-        Timer timer = new Timer();
-        TimerTask doAsyncTask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Objects.requireNonNull(getActivity()).runOnUiThread(runnable = new Runnable() {
-                                @Override
-                                public void run() {
+        try {
 
-                                    enviarUbicacion();
-                                    solicitarUbicacionesRest();
-                                }
-                            });
 
-                        } catch (Exception e) {
-                            Log.e("timer", Objects.requireNonNull(e.getMessage()));
+            timer = new Timer();
+            TimerTask doAsyncTask = new TimerTask() {
+                @Override
+                public void run() {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Objects.requireNonNull(getActivity()).runOnUiThread(runnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        enviarUbicacion();
+                                        solicitarUbicacionesRest();
+                                    }
+                                });
+
+                            } catch (Exception e) {
+                                Log.e("timer", Objects.requireNonNull(e.getMessage()));
+                            }
                         }
-                    }
-                });
-            }
-        };
-        timer.schedule(doAsyncTask, 0, 5000);
+                    });
+                }
+            };
+            timer.schedule(doAsyncTask, 0, 5000);
+        } catch (Exception e) {
+            if (e.getMessage() != null)
+                Log.e("timer", e.getMessage());
+        }
+
     }
 
     private void enviarUbicacion() {
@@ -265,7 +283,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                         ((MainActivity) getActivity()).getLogged().getAlias(),
                         ultima.getLatitude(),
                         ultima.getLongitude(),
-                        "fecha_hora"));
+                        new java.util.Date(),
+                        ultima.getAccuracy()));
 
                 call.enqueue(new Callback<Localizacion>() {
                     @Override
@@ -287,6 +306,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
     private void solicitarUbicacionesRest() {
+
         try {
             List<String> amigos = new ArrayList<>();
             amigos.add("emilio");
@@ -302,7 +322,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                         Log.i("respuesta locs", response.toString());
                         if (response.code() == 200) {
                             //codigo correcto
-                            recorrerListaLocs(response.body());
+                            if (response.body() != null) {
+                                recorrerListaLocs(response.body());
+                            }
                         } else {
                             Log.e("respuesta locs", String.valueOf(response.code()));
 
@@ -322,22 +344,29 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
         mMap.clear();
         for (int i = 0; i < localizaciones.size(); i++) {
+            if (!aliasLogeado.equals(localizaciones.get(i).getAlias())) {
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
+                        .title(localizaciones.get(i).getAlias())
+                        .snippet(localizaciones.get(i).getFecha_hora().toString())
+                );
 
-            mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
-                    .title(localizaciones.get(i).getAlias())
-                    .snippet(localizaciones.get(i).getAlias())
-            );
+                mMap.addCircle(new CircleOptions()
+                        .center(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
+                        .radius(20)
+                        .fillColor(Color.argb(60, 150, 226, 255))
+                        .strokeColor(Color.argb(100, 150, 226, 255)));
+
+            }
         }
 
 
     }
 
 
-    private void marcardorConCara() {
+    private void marcardorConCara(LatLng latLng) {
 
 
-        LatLng latLng = new LatLng(4.62642, 38.411363);
         MarkerOptions options = new MarkerOptions().position(latLng);
         Bitmap bitmap = createUserBitmap();
         if (bitmap != null) {
@@ -346,7 +375,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
             options.anchor(0.5f, 0.907f);
             Marker marker = mMap.addMarker(options);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+            // mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
         }
     }
 
@@ -394,5 +423,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         return (int) Math.ceil(getResources().getDisplayMetrics().density * value);
     }
 
-
+    @Override
+    public void onDestroy() {
+        timer.cancel();
+        super.onDestroy();
+    }
 }
