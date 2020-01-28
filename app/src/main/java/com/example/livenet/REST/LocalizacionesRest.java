@@ -30,5 +30,6 @@ public interface LocalizacionesRest {
     @PUT("localizaciones/{alias}")
     Call<Localizacion> update( @Body Localizacion localizacion);
 
-
+    @POST("locamigos")
+    Call<List<Localizacion>> findAllByAmigos(@Body List<String> amigos);
 }

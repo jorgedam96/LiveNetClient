@@ -28,6 +28,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.LocalizacionesRest;
@@ -53,6 +54,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -260,7 +262,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                 FirebaseUser user = auth.getCurrentUser();
 
                 Call<Localizacion> call = locRest.create(new Localizacion(
-                        user.getDisplayName(),
+                        ((MainActivity) getActivity()).getLogged().getAlias(),
                         ultima.getLatitude(),
                         ultima.getLongitude(),
                         "fecha_hora"));
@@ -286,7 +288,12 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     private void solicitarUbicacionesRest() {
         try {
-            Call<List<Localizacion>> call = locRest.findAll();
+            List<String> amigos = new ArrayList<>();
+            amigos.add("emilio");
+            amigos.add("jorge");
+            amigos.add("jeje");
+
+            Call<List<Localizacion>> call = locRest.findAllByAmigos(amigos);
             call.enqueue(new Callback<List<Localizacion>>() {
                 @Override
                 public void onResponse(Call<List<Localizacion>> call, Response<List<Localizacion>> response) {
@@ -315,11 +322,15 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
         mMap.clear();
         for (int i = 0; i < localizaciones.size(); i++) {
+
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
                     .title(localizaciones.get(i).getAlias())
-                    .snippet(localizaciones.get(i).getAlias()));
+                    .snippet(localizaciones.get(i).getAlias())
+            );
         }
+
+
     }
 
 

@@ -139,4 +139,10 @@ public class MainActivity extends AppCompatActivity {
         auth.signOut();
         super.onDestroy();
     }
+
+
+    public Usuario getLogged(){
+        return logged;
+
+    }
 }
