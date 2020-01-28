@@ -50,6 +50,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Date;
 import java.util.List;
@@ -133,7 +135,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         configurarIUMapa();
 
         //marcardorConCara();
-        //activarHiloUbicacionesRest();
+        activarHiloUbicacionesRest();
 
 
     }
@@ -254,9 +256,11 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         if (anterior != ultima) {
 
             try {
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                FirebaseUser user = auth.getCurrentUser();
 
                 Call<Localizacion> call = locRest.create(new Localizacion(
-                        "jorge",
+                        user.getDisplayName(),
                         ultima.getLatitude(),
                         ultima.getLongitude(),
                         "fecha_hora"));
@@ -309,6 +313,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
+        mMap.clear();
         for (int i = 0; i < localizaciones.size(); i++) {
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
