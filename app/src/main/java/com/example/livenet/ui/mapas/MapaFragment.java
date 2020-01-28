@@ -1,18 +1,24 @@
 package com.example.livenet.ui.mapas;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -35,6 +41,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -166,8 +173,16 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                 // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
                 acercarCamara(location);
 
-                ponerMiMarcador(location);
+                //ponerMiMarcador(location);
+                if (miMarker == null) {
 
+                    miMarker = mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                            .title("Tú"));
+                }else{
+                    animateMarker(location, miMarker);
+                }
 
             }
         });
@@ -178,6 +193,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         if (miMarker != null) {
             miMarker.remove();
         }
+
         miMarker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(l.getLatitude(), l.getLongitude()))
                 .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
@@ -212,7 +228,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     @Override
     public void onLocationChanged(Location location) {
-
+        Toast.makeText(root.getContext(),location.toString(),Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -401,5 +417,48 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         super.onDestroy();
     }
 
+    public static void animateMarker(final Location destination, final Marker marker) {
+        if (marker != null) {
+            final LatLng startPosition = marker.getPosition();
+            final LatLng endPosition = new LatLng(destination.getLatitude(), destination.getLongitude());
 
+            //final float startRotation = marker.getRotation();
+
+            final LatLngInterpolator latLngInterpolator = new LatLngInterpolator.LinearFixed();
+            ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+            valueAnimator.setDuration(600); // duration 1 second
+            valueAnimator.setInterpolator(new LinearInterpolator());
+            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override public void onAnimationUpdate(ValueAnimator animation) {
+                    try {
+                        float v = animation.getAnimatedFraction();
+                        LatLng newPosition = latLngInterpolator.interpolate(v, startPosition, endPosition);
+                        marker.setPosition(newPosition);
+                        //marker.setRotation(computeRotation(v, startRotation, destination.getBearing()));
+                    } catch (Exception ex) {
+                        // I don't care atm..
+                    }
+                }
+            });
+
+            valueAnimator.start();
+        }
+    }
+    private interface LatLngInterpolator {
+        LatLng interpolate(float fraction, LatLng a, LatLng b);
+
+        class LinearFixed implements LatLngInterpolator {
+            @Override
+            public LatLng interpolate(float fraction, LatLng a, LatLng b) {
+                double lat = (b.latitude - a.latitude) * fraction + a.latitude;
+                double lngDelta = b.longitude - a.longitude;
+                // Take the shortest path across the 180th meridian.
+                if (Math.abs(lngDelta) > 180) {
+                    lngDelta -= Math.signum(lngDelta) * 360;
+                }
+                double lng = lngDelta * fraction + a.longitude;
+                return new LatLng(lat, lng);
+            }
+        }
+    }
 }
