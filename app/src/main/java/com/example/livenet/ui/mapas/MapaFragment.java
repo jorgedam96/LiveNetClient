@@ -349,9 +349,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
                 mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
-                        .title(localizaciones.get(i).getAlias())
-                        .snippet(localizaciones.get(i).getFecha_hora().toString())
-                );
+                        .title(localizaciones.get(i).getAlias()));
 
                 mMap.addCircle(new CircleOptions()
                         .center(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
