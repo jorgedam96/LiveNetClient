@@ -65,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         usuario = auth.getCurrentUser();
+
         if(usuario != null){
             Toast.makeText(getApplicationContext(),"Logeado", Toast.LENGTH_SHORT).show();
-
         }
 
     }

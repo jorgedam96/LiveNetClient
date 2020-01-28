@@ -17,6 +17,7 @@ public class ChatsFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_chat, container, false);
+        getFragmentManager().beginTransaction().add(R.id.nav_host_fragment, new UsersFragment()).addToBackStack(null).commit();
 
         return root;
     }
