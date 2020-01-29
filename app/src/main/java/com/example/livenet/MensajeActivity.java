@@ -3,6 +3,8 @@ package com.example.livenet;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,13 +12,16 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.livenet.BBDD.DBC;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
+import com.example.livenet.model.Chat;
 import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Usuario;
+import com.example.livenet.ui.Adapter.MensajeAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,6 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -46,6 +52,9 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
     Intent intent;
     String receiverid;
 
+    RecyclerView recyclerView;
+    ArrayList<Chat> mChat;
+    MensajeAdapter adapter;
 
     //Elementos UI
     private EditText text_send;
@@ -80,6 +89,12 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         bt_send = findViewById(R.id.btEnviar);
         bt_send.setOnClickListener(this);
 
+        recyclerView = findViewById(R.id.chatRvMensajes);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager l = new LinearLayoutManager(getApplicationContext());
+        l.setStackFromEnd(true);
+        recyclerView.setLayoutManager(l);
+
     }
 
 
@@ -95,12 +110,14 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 System.out.println(dataSnapshot.getChildrenCount());
                 FireUser fuser = dataSnapshot.getValue(FireUser.class);
-
+                receiverid = fuser.getId();
                 if (fuser.getImage().equals("defaultphoto")) {
                     foto.setImageResource(R.drawable.defaultphoto);
                 } else {
                     System.out.println("Otra foto rara");
                 }
+
+                readMensaje(FirebaseAuth.getInstance().getCurrentUser().getUid(), receiverid);
 
             }
 
@@ -123,15 +140,47 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         hashMap.put("message", message);
 
 
-        reference.child("Chats").setValue(hashMap);
+        reference.child("Chats").push().setValue(hashMap);
     }
 
     @Override
     public void onClick(View v) {
         String msg = text_send.getText().toString();
         if(!msg.isEmpty()){
-
-
+            sendMessage(fuser.getUid(), receiverid, msg);
+            text_send.setText("");
+        }else{
+            Toast.makeText(getApplicationContext(), "No puedes enviar un mensaje vacio", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void readMensaje(String myid, String userid){
+        mChat = new ArrayList<>();
+        reference = FirebaseDatabase.getInstance().getReference("Chats");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mChat.clear();
+                try {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        System.out.println(snapshot);
+                        Chat chat = snapshot.getValue(Chat.class);
+                        if (chat.getReceiver().equals(myid) && chat.getSender().equals(userid) || chat.getReceiver().equals(userid) && chat.getSender().equals(myid)) {
+                            mChat.add(chat);
+                        }
+                        adapter = new MensajeAdapter(mChat, MensajeActivity.this, username.getText().toString());
+                        recyclerView.setAdapter(adapter);
+                    }
+                }catch(Exception ignored){
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 }

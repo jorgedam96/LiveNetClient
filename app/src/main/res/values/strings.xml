@@ -25,4 +25,5 @@
     <string name="logeando">Conectandose...</string>
     <string name="mensajes">Mensajes</string>
     <string name="amigos">Amigos</string>
+    <string name="sender_msg">Tú</string>
 </resources>
