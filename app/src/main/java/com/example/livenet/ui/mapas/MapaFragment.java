@@ -107,6 +107,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
 
         locRest = APIUtils.getLocService();
 
+        ((MainActivity)getActivity()).comprobarAmigos();
+        ((MainActivity)getActivity()).callFriends();
+
         return root;
     }
 

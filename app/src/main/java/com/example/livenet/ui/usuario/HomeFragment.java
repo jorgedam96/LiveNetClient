@@ -42,7 +42,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
         logout = root.findViewById(R.id.btLogout);
         logout.setOnClickListener(this);
-
+        
         return root;
     }
 
