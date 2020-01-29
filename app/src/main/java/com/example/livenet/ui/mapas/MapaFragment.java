@@ -295,7 +295,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
             List<String> amigos = new ArrayList<>();
             amigos.add("emilio");
             amigos.add("jorge");
-            amigos.add("jeje");
 
             Call<List<Localizacion>> call = locRest.findAllByAmigos(amigos);
             call.enqueue(new Callback<List<Localizacion>>() {
@@ -338,7 +337,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
 
                     mMap.addCircle(new CircleOptions()
                             .center(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
-                            .radius(20)
+                            .radius(localizaciones.get(i).getAccuracy())
                             .fillColor(Color.argb(60, 150, 226, 255))
                             .strokeColor(Color.argb(100, 150, 226, 255)));
                 }
