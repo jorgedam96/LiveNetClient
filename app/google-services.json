@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "559765214830-ei6l3016l177ohedtfprp1m2tae5m4cm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.livenet",
+            "certificate_hash": "525c44062f65e5ec64a274f7bf269b3e489686cf"
+          }
+        },
+        {
           "client_id": "559765214830-597h1lic6l8eilcrbmqbd4e01le9macb.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

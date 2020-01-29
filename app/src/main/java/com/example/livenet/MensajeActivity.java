@@ -133,6 +133,8 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
+
+
 /*
     private void estadoSender(String userid){
         reference = FirebaseDatabase.getInstance().getReference("Users").child(userid).child("status");
