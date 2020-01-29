@@ -6,7 +6,7 @@
     android:layout_gravity="center_horizontal">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/civProfilePic"
+        android:id="@+id/ivFotoPerfil"
         android:layout_width="140dp"
         android:layout_height="140dp"
         android:src="@drawable/defaultphoto"

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     private BottomNavigationView menuBottom;
     private ImageButton logout;
+    private ImageButton ivFotoPerfil;
+    private Button btnAgregarAmigo;
+    private Button btnVerQR;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -34,7 +38,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         menuBottom = Objects.requireNonNull(((MainActivity) getActivity())).getNavView();
         View photoHeader = root.findViewById(R.id.photoHeader);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             /* For devices equal or higher than lollipop set the translation above everything else */
             photoHeader.setTranslationZ(6);
             /* Redraw the view to show the translation */
@@ -43,12 +47,19 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         logout = root.findViewById(R.id.btLogout);
         logout.setOnClickListener(this);
 
+        ivFotoPerfil = root.findViewById(R.id.ivFotoPerfil);
+        btnAgregarAmigo = root.findViewById(R.id.btnAgregarAmigo);
+        btnVerQR = root.findViewById(R.id.btnVerQR);
+        ivFotoPerfil.setOnClickListener(this);
+        btnVerQR.setOnClickListener(this);
+        btnAgregarAmigo.setOnClickListener(this);
+
         return root;
     }
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.btLogout:
                 FirebaseAuth.getInstance().signOut();
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
@@ -56,7 +67,28 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 getActivity().finish();
                 getActivity().overridePendingTransition(R.anim.from_left, R.anim.to_right);
                 break;
+            case R.id.btnAgregarAmigo:
+                abrirCamara();
+                break;
+            case R.id.btnVerQR:
+                mostarMiQR();
+                break;
+            case R.id.ivFotoPerfil:
+                cambiarFoto();
+                break;
 
         }
+    }
+
+    private void cambiarFoto() {
+
+    }
+
+    private void mostarMiQR() {
+
+    }
+
+    private void abrirCamara() {
+
     }
 }

@@ -167,7 +167,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
                 acercarCamara(location);
 
                 //ponerMiMarcador(location);
-                if (miMarker == null) {
+               /* if (miMarker == null) {
 
                     miMarker = mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(location.getLatitude(), location.getLongitude()))
@@ -176,6 +176,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
                 } else {
                     animateMarker(location.getLatitude(), location.getLongitude(), miMarker);
                 }
+
+                */
 
             }
         });
@@ -326,7 +328,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
         try {
             mMap.clear();
-            ponerMiMarcador(ultima);
+           // ponerMiMarcador(ultima);
 
             for (int i = 0; i < localizaciones.size(); i++) {
                 if (!localizaciones.get(i).getAlias().equals(aliasLogeado)) {
