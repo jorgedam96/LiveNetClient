@@ -1,6 +1,8 @@
 package com.example.livenet.ui.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Message;
 import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.livenet.MensajeActivity;
 import com.example.livenet.R;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.util.MyB64;
@@ -53,6 +56,16 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
             holder.photo.setImageBitmap(MyB64.base64ToBitmap(user[1]));
         }
         holder.nombre.setText(user[0]);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MensajeActivity.class);
+                intent.putExtra("username", user[0]);
+                context.startActivity(intent);
+            }
+        });
 
 
 

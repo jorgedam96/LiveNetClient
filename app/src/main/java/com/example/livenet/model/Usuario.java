@@ -28,6 +28,10 @@ public class Usuario {
     @Expose
     private String foto;
 
+    @SerializedName("token")
+    @Expose
+    private String token;
+
     public Usuario() {
     }
 
@@ -36,7 +40,7 @@ public class Usuario {
         this.passwd = passwd;
     }
 
-    public Usuario(int id, String alias, String correo, String passwd, String foto) {
+    public Usuario(int id, String alias, String correo, String passwd, String foto, String token) {
         this.id = id;
         this.alias = alias;
         this.correo = correo;
@@ -52,6 +56,7 @@ public class Usuario {
                 ", correo='" + correo + '\'' +
                 ", passwd='" + passwd + '\'' +
                 ", foto='" + foto + '\'' +
+                ", token='" + token + '\'' +
                 '}';
     }
 
@@ -85,5 +90,21 @@ public class Usuario {
 
     public void setFoto(String foto) {
         this.foto = foto;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

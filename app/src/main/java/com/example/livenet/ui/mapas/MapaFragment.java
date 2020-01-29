@@ -268,7 +268,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
                         ((MainActivity) getActivity()).getLogged().getAlias(),
                         ultima.getLatitude(),
                         ultima.getLongitude(),
-                        new java.util.Date()));
+                        new java.util.Date(),ultima.getAccuracy()));
 
                 call.enqueue(new Callback<Localizacion>() {
                     @Override

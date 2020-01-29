@@ -26,13 +26,18 @@ public class Localizacion {
     @Expose
     private Date fecha_hora;
 
+    @SerializedName("accuracy")
+    @Expose
+    private float accuracy;
 
 
-    public Localizacion(String alias, double latitud, double longitud, Date fecha_hora) {
+
+    public Localizacion(String alias, double latitud, double longitud, Date fecha_hora, float accuracy) {
         this.alias = alias;
         this.latitud = latitud;
         this.longitud = longitud;
         this.fecha_hora = fecha_hora;
+        this.accuracy = accuracy;
     }
 
     public String getAlias() {
@@ -67,6 +72,13 @@ public class Localizacion {
         this.fecha_hora = fecha_hora;
     }
 
+    public float getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(float accuracy) {
+        this.accuracy = accuracy;
+    }
 
     @Override
     public String toString() {
@@ -75,6 +87,7 @@ public class Localizacion {
                 ", latitud=" + latitud +
                 ", longitud=" + longitud +
                 ", fecha_hora=" + fecha_hora +
+                ", accuracy=" + accuracy +
                 '}';
     }
 }

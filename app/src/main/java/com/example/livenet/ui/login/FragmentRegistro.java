@@ -324,7 +324,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     } else {
                         //comprobar si ha rellenado los campos y comprobar email
                         //despues insertar
-                        registrarUsuario();
+                        registrarFirebase();
                     }
                 } else {
                     Toast.makeText(root.getContext(), "No response", Toast.LENGTH_SHORT).show();
@@ -342,22 +342,23 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void registrarUsuario() {
+    private void registrarUsuario(String token) {
 
         String usuarioStr = usuario.getText().toString();
         String passStr = pass.getText().toString();
         String emailStr = email.getText().toString();
 
-        final Usuario user = new Usuario(0, usuarioStr, emailStr, passStr, "");
-
+        final Usuario user = new Usuario(0, usuarioStr, emailStr, passStr, "defaultphoto",token);
+        user.setToken(token);
+        System.out.println(user.getToken());
         Call<Usuario> call = usuariosRest.create(user);
         call.enqueue(new Callback<Usuario>() {
             @Override
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(root.getContext(), "Se ha registrado", Toast.LENGTH_SHORT).show();
+                    irALogin();
 
-                    registrarFirebase(user);
                 } else {
                     Toast.makeText(root.getContext(), "error", Toast.LENGTH_SHORT).show();
                 }
@@ -366,15 +367,15 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
 
             @Override
             public void onFailure(Call<Usuario> call, Throwable t) {
-
+                layoutLoading.setVisibility(View.INVISIBLE);
             }
         });
     }
 
 
     //Registro del usuario en firebase
-    private void registrarFirebase(Usuario usuario) {
-        auth.createUserWithEmailAndPassword(usuario.getCorreo(), usuario.getPasswd()).
+    private void registrarFirebase() {
+        auth.createUserWithEmailAndPassword(email.getText().toString(), pass.getText().toString()).
                 addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = auth.getCurrentUser();
@@ -383,17 +384,16 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                         reference = FirebaseDatabase.getInstance().getReference("Users").child(userid);
 
                         HashMap<String, String> hashMap = new HashMap<>();
-                        usuario.setFoto("default");
                         hashMap.put("id", userid);
-                        hashMap.put("username", usuario.getAlias());
-                        hashMap.put("image", usuario.getFoto());
+                        hashMap.put("username", usuario.getText().toString());
+                        hashMap.put("image", "defaultphoto");
 
 
                         reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    irALogin();
+                                    registrarUsuario(userid);
                                 }else{
                                     layoutLoading.setVisibility(View.INVISIBLE);
                                 }

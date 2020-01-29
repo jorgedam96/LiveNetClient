@@ -27,7 +27,7 @@
             android:layout_marginTop="68dp"
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif"
-            android:text="Marian Hart"
+            android:text="Usuario"
             android:textColor="@android:color/black"
             android:textSize="24sp" />
 
@@ -41,7 +41,7 @@
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:lines="2"
-            android:text="Director of Project Management at GoldenPhase Solar"
+            android:text="Alguien que viene de algun lado desconocido"
             android:textSize="16sp" />
 
         <TextView
@@ -52,7 +52,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="4dp"
             android:fontFamily="sans-serif-light"
-            android:text="Syracuse University - New York"
+            android:text="Algun Lado - Desconocido"
             android:textSize="16sp" />
 
         <TextView
@@ -63,7 +63,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="16dp"
             android:fontFamily="sans-serif-light"
-            android:text="Greater San Diego Area . 500"
+            android:text="Totalmente Desconocido - X"
             android:textSize="16sp" />
 
         <Space
@@ -118,7 +118,7 @@
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:lines="2"
-            android:text="I'm a renewable energy executive with 10 years of experience, and have built strong skills in getting companies"
+            android:text="Soy una persona totalmente desconocida, nadie sabra nada de mi en este perfil. Dale a like"
             android:textSize="14sp" />
     </RelativeLayout>
 

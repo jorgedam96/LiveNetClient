@@ -207,6 +207,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         Intent intent = new Intent((LoginActivity) getActivity(), MainActivity.class);
         Bundle datos = new Bundle();
+
         datos.putString("alias", user.getAlias());
         datos.putString("correo", user.getCorreo());
         datos.putString("foto", user.getFoto());

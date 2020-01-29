@@ -27,7 +27,11 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="q">
-        <activity android:name=".MensajeActivity"></activity>
+        <activity android:name=".MensajeActivity"
+            android:label="Mensajes"
+            android:screenOrientation="portrait"
+            android:configChanges="screenSize|orientation"
+            android:theme="@style/MessageTheme"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -48,7 +52,7 @@
             android:name=".MainActivity"
             android:configChanges="screenSize|orientation"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

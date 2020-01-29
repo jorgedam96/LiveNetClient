@@ -22,7 +22,8 @@ public class DBC extends SQLiteOpenHelper {
 
     private static final String lnAmigosSql ="CREATE TABLE AMIGOS(\n" +
             "    ALIAS VARCHAR(255) NOT NULL PRIMARY KEY,\n" +
-            "    FOTO TEXT NOT NULL);";
+            "    FOTO TEXT NOT NULL," +
+            "    TOKEN TEXT NOT NULL);";
 
 
     public DBC(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
@@ -51,12 +52,12 @@ public class DBC extends SQLiteOpenHelper {
         //Si hemos abierto correctamente la base de datos
         if (bd != null) {
             //Seleccionamos todos
-            Cursor c = bd.rawQuery("SELECT ALIAS, FOTO FROM AMIGOS", null);
+            Cursor c = bd.rawQuery("SELECT ALIAS, FOTO, TOKEN FROM AMIGOS", null);
             //Nos aseguramos de que existe al menos un registro
             if (c.moveToFirst()) {
                 //Recorremos el cursor hasta que no haya más registros
                 do {
-                    amigos.add(new String[]{c.getString(0),c.getString(1)});
+                    amigos.add(new String[]{c.getString(0),c.getString(1), c.getString(2)});
                 } while (c.moveToNext());
             }
             //Cerramos la base de datos
@@ -68,10 +69,35 @@ public class DBC extends SQLiteOpenHelper {
         return amigos;
     }
 
-    public void delete(int id){
+    public String getTokenAmigo(String amigo){
+
         SQLiteDatabase bd = this.getReadableDatabase();
 
-        bd.delete("Juego", "id=" + id, null);
+        String token = "";
+        //Si hemos abierto correctamente la base de datos
+        if (bd != null) {
+            //Seleccionamos todos
+            Cursor c = bd.rawQuery("SELECT TOKEN FROM AMIGOS WHERE ALIAS='"+amigo+"'", null);
+            //Nos aseguramos de que existe al menos un registro
+            if (c.moveToFirst()) {
+                //Recorremos el cursor hasta que no haya más registros
+                do {
+                    token = c.getString(0);
+                    } while (c.moveToNext());
+            }
+            //Cerramos la base de datos
+            c.close();
+
+
+        }
+        bd.close();
+        return token;
+    }
+
+    public void delete(String alias){
+        SQLiteDatabase bd = this.getWritableDatabase();
+
+        bd.delete("AMIGOS", "ALIAS"+"=?", new String[]{alias});
 
         bd.close();
     }
@@ -83,6 +109,7 @@ public class DBC extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("alias", amigo[0]);
         values.put("foto", amigo[1]);
+        values.put("token", amigo[2]);
         try {
             db.insert("Amigos", null, values);
         }catch(SQLiteException ex){

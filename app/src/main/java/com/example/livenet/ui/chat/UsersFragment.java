@@ -33,6 +33,7 @@ public class UsersFragment extends Fragment {
     private RecyclerView recyclerView;
     private UsersAdapter adapter;
     private ArrayList<String[]> mUsers;
+    private ArrayList<String[]> remota;
     private DBC dbc;
     private AmigosRest amigosRest;
 
@@ -48,8 +49,8 @@ public class UsersFragment extends Fragment {
         dbc = new DBC(getContext(), "localCfgBD", null, 1);
         amigosRest = APIUtils.getAmigosService();
 
+        comprobarAmigos();
         callFriends();
-
 
 
         dbc.close();
@@ -58,12 +59,52 @@ public class UsersFragment extends Fragment {
 
     private void readUsers() {
         mUsers = dbc.seleccionarData();
-        adapter = new UsersAdapter(mUsers, getContext(),getFragmentManager());
+        adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager());
         recyclerView.setAdapter(adapter);
     }
 
 
-    private void callFriends(){
+    private void comprobarAmigos() {
+        DBC dbc = new DBC(getContext(), "localCfgBD", null, 1);
+        ArrayList<String[]> local = dbc.seleccionarData();
+
+        AmigosRest amigosRest = APIUtils.getAmigosService();
+        Call<ArrayList<String[]>> call = amigosRest.findAllByAlias(((MainActivity) getActivity()).getLogged().getAlias());
+        System.out.println(((MainActivity) getActivity()).getLogged().getAlias());
+        call.enqueue(new Callback<ArrayList<String[]>>() {
+            @Override
+            public void onResponse(Call<ArrayList<String[]>> call, Response<ArrayList<String[]>> response) {
+                if (response.isSuccessful()) {
+                    //hay respuesta
+                    remota = response.body();
+                    for (String[] localUser : local) {
+                        boolean borrado = true;
+                        for (int i = 0; i < remota.size(); i++) {
+                            if (localUser[0].equals(remota.get(i)[0])) {
+                                borrado = false;
+                                i = remota.size();
+                            }
+
+                        }
+
+                        if (borrado) {
+                            dbc.delete(localUser[0]);
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<String[]>> call, Throwable t) {
+            }
+        });
+
+        dbc.close();
+    }
+
+
+    private void callFriends() {
         Call<ArrayList<String[]>> call = amigosRest.findAllByAlias(((MainActivity) getActivity()).getLogged().getAlias());
         call.enqueue(new Callback<ArrayList<String[]>>() {
             @Override
@@ -71,8 +112,8 @@ public class UsersFragment extends Fragment {
                 if (response.isSuccessful()) {
                     //hay respuesta
                     mUsers = response.body();
-                    for(String[] user : mUsers){
-                        if(user[1].isEmpty() || user[1].equals("default")){
+                    for (String[] user : mUsers) {
+                        if (user[1].isEmpty() || user[1].equals("default")) {
                             user[1] = "defaultphoto";
                         }
                         dbc.insert(user);
@@ -83,7 +124,7 @@ public class UsersFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ArrayList<String[]>> call, Throwable t) {
-                Toast.makeText(getContext(),"No se ha podido cargar la lista de amigos",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "No se ha podido cargar la lista de amigos", Toast.LENGTH_SHORT).show();
             }
         });
     }

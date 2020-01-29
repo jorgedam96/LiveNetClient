@@ -11,6 +11,9 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.livenet.BBDD.DBC;
+import com.example.livenet.REST.APIUtils;
+import com.example.livenet.REST.AmigosRest;
 import com.example.livenet.model.Usuario;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,8 +27,13 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.PermissionRequestErrorListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     BottomNavigationView navView;
@@ -34,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
     FirebaseUser usuario;
     FirebaseAuth auth;
     FirebaseDatabase database;
+
+    //Amigos
+    ArrayList<String[]> remota;
 
 
     @Override
@@ -139,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         auth.signOut();
         super.onDestroy();
     }
+
 
 
     public Usuario getLogged(){
