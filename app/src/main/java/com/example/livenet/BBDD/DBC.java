@@ -59,7 +59,7 @@ public class DBC extends SQLiteOpenHelper {
             if (c.moveToFirst()) {
                 //Recorremos el cursor hasta que no haya más registros
                 do {
-                    amigos.add(new FireUser(c.getString(2),c.getString(1),c.getString(0)));
+                    amigos.add(new FireUser(c.getString(2),c.getString(1),c.getString(0),""));
                 } while (c.moveToNext());
             }
             //Cerramos la base de datos
