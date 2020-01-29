@@ -47,6 +47,7 @@ public class UsersFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
 
+        dbc = new DBC(getActivity(), "localCfgBD", null, 1);
 
 
         ((MainActivity)getActivity()).comprobarAmigos();

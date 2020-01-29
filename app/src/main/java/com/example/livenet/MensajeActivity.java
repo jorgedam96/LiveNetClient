@@ -63,7 +63,7 @@ public class MensajeActivity extends AppCompatActivity {
         username = findViewById(R.id.mensajes_username);
         intent = getIntent();
         usern = intent.getStringExtra("username");
-
+        username.setText(usern);
         fuser = FirebaseAuth.getInstance().getCurrentUser();
         rellenarChat();
     }
@@ -81,7 +81,7 @@ public class MensajeActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 System.out.println(dataSnapshot.getChildrenCount());
                 FireUser fuser = dataSnapshot.getValue(FireUser.class);
-                username.setText(fuser.getUsername());
+
                 if (fuser.getImage().equals("defaultphoto")) {
                     foto.setImageResource(R.drawable.defaultphoto);
                 } else {
