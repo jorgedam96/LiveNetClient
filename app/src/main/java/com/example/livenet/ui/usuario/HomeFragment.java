@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.livenet.LoginActivity;
@@ -56,10 +57,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private String usuarioLogeado;
     private View root;
 
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-         root = inflater.inflate(R.layout.fragment_usuario, container, false);
+        root = inflater.inflate(R.layout.fragment_usuario, container, false);
 
         Objects.requireNonNull(((MainActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
         //Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -149,7 +151,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void abrirCamara() {
-        IntentIntegrator integrator = new IntentIntegrator(((MainActivity) getActivity()));
+
+
+        IntentIntegrator integrator = new IntentIntegrator(getActivity());
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
         integrator.setPrompt("Enfoca un QR para agregar a un amigo!\n\n\n");
         integrator.setBeepEnabled(false);
@@ -158,8 +162,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        Log.e("amigo","on activity result");
+
         if (result != null) {
             if (result.getContents() == null) {
                 Toast.makeText(root.getContext(), "Cancelado", Toast.LENGTH_LONG).show();
@@ -169,11 +176,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 insertarAmigo(result.getContents());
             }
         } else {
+            Toast.makeText(root.getContext(), "Cancelado", Toast.LENGTH_LONG).show();
+
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
     private void insertarAmigo(String amigo) {
+        Log.e("amigo","insertarAmigo");
         try {
             amigoRest = APIUtils.getAmigosService();
 
@@ -189,6 +199,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     } else {
                         Toast.makeText(root.getContext(), "Parece que no es un usuario de la App", Toast.LENGTH_SHORT).show();
                     }
+                    Log.e("amigo","onresponse");
 
 
                 }
