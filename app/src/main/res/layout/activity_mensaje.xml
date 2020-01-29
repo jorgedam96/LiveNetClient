@@ -30,4 +30,38 @@
             android:textColor="@android:color/white"/>
 
     </androidx.appcompat.widget.Toolbar>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="5dp"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/layoutEnviar">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMensajeEnviado"
+            android:layout_toLeftOf="@+id/btEnviar"
+            android:hint="Escribe un mensaje"
+            android:gravity="center_vertical"
+            />
+
+        <ImageButton
+            android:id="@+id/btEnviar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/ic_send_black_24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"/>
+
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/chatRvMensajes"
+        android:layout_below="@id/MensajeToolbar"
+        android:layout_above="@id/layoutEnviar"/>
 </RelativeLayout>
