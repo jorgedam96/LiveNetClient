@@ -74,7 +74,7 @@
             android:layout_centerHorizontal="true" />
 
         <Button
-            android:id="@+id/btnMessage"
+            android:id="@+id/btnVerQR"
             android:layout_width="110dp"
             android:layout_height="40dp"
             android:layout_below="@id/tvAddress"
@@ -87,11 +87,12 @@
             android:paddingLeft="10dp"
             android:paddingEnd="10dp"
             android:paddingRight="10dp"
-            android:text="message"
+            android:text="Ver QR"
             android:textColor="@android:color/holo_blue_light"
             android:textSize="16sp" />
 
         <Button
+            android:id="@+id/btnAgregarAmigo"
             android:layout_width="110dp"
             android:layout_height="40dp"
             android:layout_below="@id/tvAddress"
@@ -104,15 +105,15 @@
             android:paddingLeft="10dp"
             android:paddingEnd="10dp"
             android:paddingRight="10dp"
-            android:text="connect"
+            android:text="Agregar amigo"
             android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tvSummary"
             android:layout_width="310dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/btnMessage"
+            android:layout_below="@id/btnVerQR"
             android:layout_centerHorizontal="true"
             android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
