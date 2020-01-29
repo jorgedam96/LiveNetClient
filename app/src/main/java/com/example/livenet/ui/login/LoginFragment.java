@@ -208,7 +208,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     }
 
     private void irApp(Usuario user) {
-        
+
             firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
             Intent intent = new Intent((LoginActivity) getActivity(), MainActivity.class);
@@ -236,6 +236,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         String uid = auth.getCurrentUser().getUid();
+
+                        //Buscamos el usuario en Firebase
                         reference = FirebaseDatabase.getInstance().getReference("Users").child(uid);
 
                         reference.addValueEventListener(new ValueEventListener() {
@@ -243,12 +245,16 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 System.out.println(dataSnapshot.getChildrenCount());
                                 FireUser fuser = dataSnapshot.getValue(FireUser.class);
+
+                                //Comprobamos que no esté conectado desde otra localizacion
                                 if(fuser.getStatus().equals("Conectado")){
                                     Toast.makeText(getContext(),"El usuario ya está conectado desde otra localizacion", Toast.LENGTH_SHORT).show();
+                                    //Si es asi le mostramos un mensaje de advertencia y no podrá conectarse
                                     reference.removeEventListener(this);
                                     getFragmentManager().beginTransaction().replace(R.id.containerLogin, new LoginFragment()).commit();
 
                                 }else{
+                                    //En caso contrario, hara login
                                     irApp(usuario);
                                 }
                             }
