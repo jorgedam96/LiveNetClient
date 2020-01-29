@@ -18,4 +18,8 @@ import retrofit2.http.Query;
 public interface AmigosRest {
     @GET("amigos/{alias}")
     Call<ArrayList<String[]>> findAllByAlias(@Path("alias") String alias);
+
+    @POST("agregaramigo")
+    Call agregarAmigo (@Body String[] amigos);
+
 }
