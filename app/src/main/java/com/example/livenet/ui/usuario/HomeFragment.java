@@ -161,58 +161,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         integrator.initiateScan();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        Log.e("amigo","on activity result");
-
-        if (result != null) {
-            if (result.getContents() == null) {
-                Toast.makeText(root.getContext(), "Cancelado", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(root.getContext(), result.getContents().toString(), Toast.LENGTH_LONG).show();
-
-                insertarAmigo(result.getContents());
-            }
-        } else {
-            Toast.makeText(root.getContext(), "Cancelado", Toast.LENGTH_LONG).show();
-
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    private void insertarAmigo(String amigo) {
-        Log.e("amigo","insertarAmigo");
-        try {
-            amigoRest = APIUtils.getAmigosService();
-
-            Call call = amigoRest.agregarAmigo(new String[]{usuarioLogeado, amigo});
-
-            call.enqueue(new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) {
-                    if (response.code() == 200) {
-                        Toast.makeText(root.getContext(), "Se ha agregado a: " + amigo, Toast.LENGTH_SHORT).show();
-                    } else if (response.code() == 204) {
-                        Toast.makeText(root.getContext(), "No se puede agregar, ya sois amigos", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(root.getContext(), "Parece que no es un usuario de la App", Toast.LENGTH_SHORT).show();
-                    }
-                    Log.e("amigo","onresponse");
 
 
-                }
-
-                @Override
-                public void onFailure(Call call, Throwable t) {
-
-                }
-            });
-        } catch (Exception e) {
-            if (e.getMessage() != null) {
-                Log.e("Agregar amigo", e.getMessage());
-            }
-        }
-    }
 }
