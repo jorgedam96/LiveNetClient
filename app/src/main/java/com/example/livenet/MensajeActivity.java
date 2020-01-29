@@ -7,6 +7,8 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 
@@ -25,13 +27,14 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MensajeActivity extends AppCompatActivity {
+public class MensajeActivity extends AppCompatActivity implements View.OnClickListener {
 
     CircleImageView foto;
     FirebaseUser fuser;
@@ -41,6 +44,12 @@ public class MensajeActivity extends AppCompatActivity {
     private DBC dbc;
     String usern;
     Intent intent;
+    String receiverid;
+
+
+    //Elementos UI
+    private EditText text_send;
+    private ImageButton bt_send;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +75,11 @@ public class MensajeActivity extends AppCompatActivity {
         username.setText(usern);
         fuser = FirebaseAuth.getInstance().getCurrentUser();
         rellenarChat();
+
+        text_send = findViewById(R.id.tvMensajeEnviado);
+        bt_send = findViewById(R.id.btEnviar);
+        bt_send.setOnClickListener(this);
+
     }
 
 
@@ -99,4 +113,25 @@ public class MensajeActivity extends AppCompatActivity {
 
     }
 
+    private void sendMessage(String sender, String receiver, String message){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+        HashMap<String, Object> hashMap = new HashMap<>();
+
+        hashMap.put("sender",sender);
+        hashMap.put("receiver", receiver);
+        hashMap.put("message", message);
+
+
+        reference.child("Chats").setValue(hashMap);
+    }
+
+    @Override
+    public void onClick(View v) {
+        String msg = text_send.getText().toString();
+        if(!msg.isEmpty()){
+
+
+        }
+    }
 }
