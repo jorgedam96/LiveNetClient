@@ -17,6 +17,7 @@ import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.zxing.integration.android.IntentIntegrator;
 
 import java.util.Objects;
 
@@ -89,6 +90,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void abrirCamara() {
-
+        IntentIntegrator integrator = new IntentIntegrator(getActivity());
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
+        integrator.setPrompt("Enfoca un QR para agregar a un amigo!\n\n\n");
+        integrator.setBeepEnabled(false);
+        integrator.setBarcodeImageEnabled(false);
+        integrator.initiateScan();
     }
 }
