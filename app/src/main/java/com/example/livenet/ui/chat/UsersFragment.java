@@ -47,7 +47,7 @@ public class UsersFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
 
-        dbc = new DBC(getActivity(), "localCfgBD", null, 1);
+
 
 
         ((MainActivity)getActivity()).comprobarAmigos();
@@ -59,6 +59,7 @@ public class UsersFragment extends Fragment {
     }
 
     private void readUsers() {
+        dbc = new DBC(getActivity(), "localCfgBD", null, 1);
         mUsers = dbc.seleccionarData();
         adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager());
         recyclerView.setAdapter(adapter);
