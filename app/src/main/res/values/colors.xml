@@ -11,5 +11,6 @@
     <color name="disabled">#DADADA</color>
     <color name="botonCam">#F2FFFFFF</color>
     <color name="azulRoyal">#4169E1</color>
+    <color name="Toolbar_mensajes">#0288D1</color>
 
 </resources>

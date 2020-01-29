@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.livenet.R;
@@ -22,10 +23,12 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
 
     private ArrayList<String[]> list;
     private Context context;
+    private FragmentManager fragmentManager;
 
-    public UsersAdapter(ArrayList<String[]> list, Context context){
+    public UsersAdapter(ArrayList<String[]> list, Context context, FragmentManager fragmentManager){
         this.list = list;
         this.context = context;
+        this.fragmentManager = fragmentManager;
     }
 
     @NonNull
@@ -44,12 +47,14 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
 
         final String[] user = list.get(position);
 
-        if(user[1].equals("default")){
+        if(user[1].equals("defaultphoto")){
             holder.photo.setImageDrawable(context.getDrawable(R.drawable.defaultphoto));
         }else {
             holder.photo.setImageBitmap(MyB64.base64ToBitmap(user[1]));
         }
         holder.nombre.setText(user[0]);
+
+
 
     }
 

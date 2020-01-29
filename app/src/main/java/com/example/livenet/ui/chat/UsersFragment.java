@@ -49,7 +49,7 @@ public class UsersFragment extends Fragment {
         amigosRest = APIUtils.getAmigosService();
 
         callFriends();
-        readUsers();
+
 
 
         dbc.close();
@@ -58,7 +58,7 @@ public class UsersFragment extends Fragment {
 
     private void readUsers() {
         mUsers = dbc.seleccionarData();
-        adapter = new UsersAdapter(mUsers, getContext());
+        adapter = new UsersAdapter(mUsers, getContext(),getFragmentManager());
         recyclerView.setAdapter(adapter);
     }
 
@@ -72,8 +72,12 @@ public class UsersFragment extends Fragment {
                     //hay respuesta
                     mUsers = response.body();
                     for(String[] user : mUsers){
+                        if(user[1].isEmpty() || user[1].equals("default")){
+                            user[1] = "defaultphoto";
+                        }
                         dbc.insert(user);
                     }
+                    readUsers();
                 }
             }
 
