@@ -20,6 +20,6 @@ public interface AmigosRest {
     Call<ArrayList<String[]>> findAllByAlias(@Path("alias") String alias);
 
     @POST("agregaramigo")
-    Call agregarAmigo (@Body String[] amigos);
+    Call<String> agregarAmigo (@Body String[] amigos);
 
 }

@@ -2,6 +2,7 @@ package com.example.livenet;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -19,6 +20,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     //DB
     private DBC dbc;
+    private AmigosRest amigoRest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,6 +230,57 @@ public class MainActivity extends AppCompatActivity {
 
     public Usuario getLogged(){
         return logged;
-
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if(result != null) {
+            if(result.getContents() == null) {
+                Toast.makeText(this, "Cancelado", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Escaneado: " + result.getContents(), Toast.LENGTH_LONG).show();
+                insertarAmigo(result.getContents());
+
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void insertarAmigo(String amigo) {
+        Log.e("amigo","insertarAmigo");
+        try {
+            amigoRest = APIUtils.getAmigosService();
+
+            Call call = amigoRest.agregarAmigo(new String[]{logged.getAlias(), amigo});
+
+            call.enqueue(new Callback<String[]>() {
+                @Override
+                public void onResponse(Call call, Response response) {
+                    if (response.code() == 200) {
+                        Toast.makeText(getApplicationContext(), "Se ha agregado a: " + amigo, Toast.LENGTH_SHORT).show();
+                    } else if (response.code() == 204) {
+                        Toast.makeText(getApplicationContext(), "No se puede agregar, ya sois amigos", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Parece que no es un usuario de la App", Toast.LENGTH_SHORT).show();
+                    }
+                    Log.e("amigo","onresponse");
+
+
+                }
+
+                @Override
+                public void onFailure(Call call, Throwable t) {
+
+                }
+            });
+        } catch (Exception e) {
+            if (e.getMessage() != null) {
+                Log.e("Agregar amigo", e.getMessage());
+            }
+        }
+    }
+
+
 }
