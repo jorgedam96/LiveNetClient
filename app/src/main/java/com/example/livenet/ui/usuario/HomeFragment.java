@@ -55,6 +55,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         btnVerQR.setOnClickListener(this);
         btnAgregarAmigo.setOnClickListener(this);
 
+
+        ((MainActivity)getActivity()).comprobarAmigos();
+        ((MainActivity)getActivity()).callFriends();
+
+
         return root;
     }
 

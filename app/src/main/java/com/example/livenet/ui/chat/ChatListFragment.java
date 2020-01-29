@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 
 public class ChatListFragment extends Fragment {
@@ -25,6 +26,8 @@ public class ChatListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.chat_list_fragment, container, false);
+        ((MainActivity)getActivity()).comprobarAmigos();
+        ((MainActivity)getActivity()).callFriends();
         return view;
     }
 

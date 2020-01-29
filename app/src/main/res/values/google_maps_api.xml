@@ -6,6 +6,9 @@
 
     https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=52:5C:44:06:2F:65:E5:EC:64:A2:74:F7:BF:26:9B:3E:48:96:86:CF;com.example.livenet
 
+
+    -EMILIOOOOOOOOOOO
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=FC:B3:2B:BB:C3:23:DD:D4:56:97:4C:4C:F0:61:63:AB:70:45:0E:FA;com.example.livenet
     You can also add your credentials to an existing key, using these values:
 
     Package name:
@@ -20,6 +23,7 @@
     Once you have your key (it starts with "AIza"), replace the "google_maps_key"
     string in this file.
     -->
-   <!-- <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyC22yCQINfV8rDM31e0Rtt-BD98WsO1Dy0</string>-->
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyC22yCQINfV8rDM31e0Rtt-BD98WsO1Dy0</string>
+    <!-- EMILIOOOOOOOO <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDnLiTNWPxKsNsMnQBCwzn-uVzZgX2JhwY</string>-->
+    <!-- JORGEEEEEEEEE <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyC22yCQINfV8rDM31e0Rtt-BD98WsO1Dy0</string>-->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDnLiTNWPxKsNsMnQBCwzn-uVzZgX2JhwY</string>
 </resources>
