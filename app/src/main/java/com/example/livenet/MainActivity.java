@@ -15,10 +15,12 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.livenet.BBDD.DBC;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
+import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Usuario;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -31,6 +33,7 @@ import com.karumi.dexter.listener.PermissionRequestErrorListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     Usuario logged;
     FirebaseUser usuario;
     FirebaseAuth auth;
-    FirebaseDatabase database;
+    DatabaseReference reference;
 
     //Amigos
     ArrayList<String[]> remota;
@@ -161,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void comprobarAmigos() {
         dbc = new DBC(getApplicationContext(), "localCfgBD", null, 1);
-        ArrayList<String[]> local = dbc.seleccionarData();
+        ArrayList<FireUser> local = dbc.seleccionarData();
 
         AmigosRest amigosRest = APIUtils.getAmigosService();
         Call<ArrayList<String[]>> call = amigosRest.findAllByAlias(this.getLogged().getAlias());
@@ -172,10 +175,10 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     //hay respuesta
                     remota = response.body();
-                    for (String[] localUser : local) {
+                    for (FireUser localUser : local) {
                         boolean borrado = true;
                         for (int i = 0; i < remota.size(); i++) {
-                            if (localUser[0].equals(remota.get(i)[0])) {
+                            if (localUser.getUsername().equals(remota.get(i)[0])) {
                                 borrado = false;
                                 i = remota.size();
                             }
@@ -183,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (borrado) {
-                            dbc.delete(localUser[0]);
+                            dbc.delete(localUser.getUsername());
                         }
                     }
 
@@ -283,4 +286,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void status(String status){
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(usuario.getUid());
+
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("status", status);
+        reference.updateChildren(hashMap);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        status("Conectado");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        status("Desconectado");
+    }
 }

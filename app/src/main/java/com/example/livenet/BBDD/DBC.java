@@ -11,6 +11,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.example.livenet.model.FireUser;
+
 import java.util.ArrayList;
 
 public class DBC extends SQLiteOpenHelper {
@@ -45,10 +47,10 @@ public class DBC extends SQLiteOpenHelper {
      * Accion de seleccionar datos de la BBDD sin ningun filtro
      *
      */
-    public ArrayList<String[]> seleccionarData() {
+    public ArrayList<FireUser> seleccionarData() {
         SQLiteDatabase bd = this.getReadableDatabase();
 
-        ArrayList<String[]> amigos = new ArrayList<>();
+        ArrayList<FireUser> amigos = new ArrayList<>();
         //Si hemos abierto correctamente la base de datos
         if (bd != null) {
             //Seleccionamos todos
@@ -57,7 +59,7 @@ public class DBC extends SQLiteOpenHelper {
             if (c.moveToFirst()) {
                 //Recorremos el cursor hasta que no haya más registros
                 do {
-                    amigos.add(new String[]{c.getString(0),c.getString(1), c.getString(2)});
+                    amigos.add(new FireUser(c.getString(2),c.getString(1),c.getString(0)));
                 } while (c.moveToNext());
             }
             //Cerramos la base de datos

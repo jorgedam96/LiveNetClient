@@ -13,14 +13,28 @@
         android:src="@drawable/defaultphoto"
         android:id="@+id/UsersPhoto"
         />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/UsersPhoto"
+        android:layout_toEndOf="@id/UsersPhoto"
+        android:paddingLeft="15dp"
+        android:orientation="vertical">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/UsersName"
-        android:layout_toRightOf="@id/UsersPhoto"
-        android:layout_toEndOf="@id/UsersPhoto"
+
         android:text="Username"
-        android:layout_centerVertical="true"
         android:layout_marginStart="10dp"
         android:textSize="18sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/UsersStatus"
+
+            android:text="Desconectado"
+            android:layout_marginStart="10dp"
+            android:textSize="12sp"/>
+    </LinearLayout>
 </RelativeLayout>

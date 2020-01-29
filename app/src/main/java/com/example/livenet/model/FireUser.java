@@ -4,6 +4,7 @@ public class FireUser {
     private String id;
     private String image;
     private String username;
+    private String status;
 
 
     public FireUser() {
@@ -14,6 +15,14 @@ public class FireUser {
         this.username = username;
         this.image = image;
     }
+
+    public FireUser(String id, String image, String username, String status) {
+        this.id = id;
+        this.username = username;
+        this.image = image;
+        this.status = status;
+    }
+
 
     public String getId() {
         return id;
@@ -37,5 +46,13 @@ public class FireUser {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

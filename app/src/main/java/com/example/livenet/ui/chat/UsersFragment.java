@@ -18,6 +18,7 @@ import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
+import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.ui.Adapter.UsersAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,7 +33,7 @@ import retrofit2.Response;
 public class UsersFragment extends Fragment {
     private RecyclerView recyclerView;
     private UsersAdapter adapter;
-    private ArrayList<String[]> mUsers;
+    private ArrayList<FireUser> mUsers;
     private ArrayList<String[]> remota;
     private DBC dbc;
     private AmigosRest amigosRest;
