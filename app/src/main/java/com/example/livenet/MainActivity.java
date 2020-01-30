@@ -17,6 +17,8 @@ import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
 import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Usuario;
+import com.example.livenet.ui.login.LoginFragment;
+import com.example.livenet.util.MyB64;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(this.getSupportActionBar()).hide();
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
-        dbc = new DBC(getApplicationContext(),"localCfgBD", null,1);
+        dbc = new DBC(getApplicationContext(), "localCfgBD", null, 1);
         navView = findViewById(R.id.nav_view);
         //navView.animate().translationY(navView.getHeight());
 
@@ -75,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
-        //pedirMultiplesPermisos();
 
         logged = new Usuario();
         Intent intent = getIntent();
@@ -83,58 +84,16 @@ public class MainActivity extends AppCompatActivity {
 
         logged.setAlias(extras.getString("alias"));
         logged.setCorreo(extras.getString("correo"));
-        logged.setFoto(extras.getString("foto"));
+
+
         amigosRest = APIUtils.getAmigosService();
         auth = FirebaseAuth.getInstance();
         usuario = auth.getCurrentUser();
 
-        if(usuario != null){
-            Toast.makeText(getApplicationContext(),"Logeado", Toast.LENGTH_SHORT).show();
+        if (usuario != null) {
+            Toast.makeText(getApplicationContext(), "Logeado", Toast.LENGTH_SHORT).show();
         }
 
-    }
-
-
-    private void pedirMultiplesPermisos() {
-        // Indicamos el permisos y el manejador de eventos de los mismos
-        Dexter.withActivity(this)
-                .withPermissions(
-                        android.Manifest.permission.CAMERA,
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        // ccomprbamos si tenemos los permisos de todos ellos
-                        if (report.areAllPermissionsGranted()) {
-                            Toast.makeText(getApplicationContext(), "¡Todos los permisos concedidos!", Toast.LENGTH_SHORT).show();
-                        }
-
-
-                        // comprobamos si hay un permiso que no tenemos concedido ya sea temporal o permanentemente
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            // abrimos un diálogo a los permisos
-                            //openSettingsDialog();
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-
-
-                }).
-                withErrorListener(new PermissionRequestErrorListener() {
-                    @Override
-                    public void onError(DexterError error) {
-                        Toast.makeText(getApplicationContext(), "Existe errores! ", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .onSameThread()
-                .check();
     }
 
 
@@ -233,15 +192,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public Usuario getLogged(){
+    public Usuario getLogged() {
         return logged;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null) {
-            if(result.getContents() == null) {
+        if (result != null) {
+            if (result.getContents() == null) {
                 Toast.makeText(this, "Cancelado", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Escaneado: " + result.getContents(), Toast.LENGTH_LONG).show();
@@ -254,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void insertarAmigo(String amigo) {
-        Log.e("amigo","insertarAmigo");
+        Log.e("amigo", "insertarAmigo");
         try {
             amigoRest = APIUtils.getAmigosService();
 
@@ -270,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(getApplicationContext(), "Parece que no es un usuario de la App", Toast.LENGTH_SHORT).show();
                     }
-                    Log.e("amigo","onresponse");
+                    Log.e("amigo", "onresponse");
 
 
                 }
@@ -288,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void status(String status){
+    public void status(String status) {
 
         reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
@@ -303,8 +262,6 @@ public class MainActivity extends AppCompatActivity {
 
         status("Conectado");
     }
-
-
 
 
 }

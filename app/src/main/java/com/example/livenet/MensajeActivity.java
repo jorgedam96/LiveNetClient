@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -22,6 +24,7 @@ import com.example.livenet.model.Chat;
 import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.ui.Adapter.MensajeAdapter;
+import com.example.livenet.util.MyB64;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -98,13 +101,11 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         recyclerView.setLayoutManager(l);
 
 
-
     }
 
 
-
-    private void rellenarChat(){
-        dbc = new DBC(getApplicationContext(),"localCfgBD", null, 1);
+    private void rellenarChat() {
+        dbc = new DBC(getApplicationContext(), "localCfgBD", null, 1);
 
 
         reference = FirebaseDatabase.getInstance().getReference("Users").child(dbc.getTokenAmigo(usern));
@@ -119,11 +120,11 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
                     if (fuser.getImage().equals("defaultphoto")) {
                         foto.setImageResource(R.drawable.defaultphoto);
                     } else {
-                        System.out.println("Otra foto rara");
+                        foto.setImageDrawable(new BitmapDrawable(getResources(), MyB64.base64ToBitmap(fuser.getImage())));
                     }
 
                     readMensaje(FirebaseAuth.getInstance().getCurrentUser().getUid(), receiverid);
-                }catch(Exception ex){
+                } catch (Exception ex) {
 
                     reference.removeEventListener(this);
 
@@ -139,12 +140,12 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-    private void sendMessage(String sender, String receiver, String message){
+    private void sendMessage(String sender, String receiver, String message) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         HashMap<String, Object> hashMap = new HashMap<>();
 
-        hashMap.put("sender",sender);
+        hashMap.put("sender", sender);
         hashMap.put("receiver", receiver);
         hashMap.put("message", message);
 
@@ -155,15 +156,15 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         String msg = text_send.getText().toString();
-        if(!msg.isEmpty()){
+        if (!msg.isEmpty()) {
             sendMessage(localuserid, receiverid, msg);
             text_send.setText("");
-        }else{
+        } else {
             Toast.makeText(getApplicationContext(), "No puedes enviar un mensaje vacio", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void readMensaje(String myid, String userid){
+    private void readMensaje(String myid, String userid) {
         mChat = new ArrayList<>();
         reference = FirebaseDatabase.getInstance().getReference("Chats");
         reference.addValueEventListener(new ValueEventListener() {
@@ -180,7 +181,7 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
                         adapter = new MensajeAdapter(mChat, MensajeActivity.this, username.getText().toString());
                         recyclerView.setAdapter(adapter);
                     }
-                }catch(Exception ignored){
+                } catch (Exception ignored) {
 
                 }
             }

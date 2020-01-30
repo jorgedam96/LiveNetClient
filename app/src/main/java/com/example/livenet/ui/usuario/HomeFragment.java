@@ -102,6 +102,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         ((MainActivity) getActivity()).comprobarAmigos();
         ((MainActivity) getActivity()).callFriends();
 
+
         cargarFoto();
         return root;
     }
@@ -116,8 +117,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 @Override
                 public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                     try {
-                        ivFotoPerfil.setImageBitmap(MyB64.base64ToBitmap(response.body().getFoto()));
-
+                        if (response.body().getFoto().equals("defaultphoto")) {
+                            ivFotoPerfil.setImageResource(R.drawable.defaultphoto);
+                        } else{
+                            ivFotoPerfil.setImageBitmap(MyB64.base64ToBitmap(response.body().getFoto()));
+                    }
                     } catch (Exception e) {
                         if (e.getMessage() != null) {
                             Log.e("cargarFoto", e.getMessage());

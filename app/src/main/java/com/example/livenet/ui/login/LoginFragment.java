@@ -48,6 +48,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +61,7 @@ import retrofit2.Response;
 
 import static android.os.Build.VERSION.SDK_INT;
 
-public class LoginFragment extends Fragment implements View.OnClickListener {
+public class LoginFragment extends Fragment implements View.OnClickListener, Serializable {
 
 
     private View root;
@@ -70,7 +71,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private CardView btnRegistrar;
     private UsuariosRest usuariosRest;
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
-
+    private String fotoUsuario;
     //Chat
     private FirebaseAuth auth;
     private DatabaseReference reference;
@@ -227,7 +228,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         datos.putString("alias", user.getAlias());
         datos.putString("correo", user.getCorreo());
+        //no poner foto real que revienta
         datos.putString("foto", "defaultphoto");
+        fotoUsuario=user.getFoto();
         intent.putExtras(datos);
         startActivity(intent);
         getActivity().finish();
@@ -399,4 +402,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 .show();
     }
 
+    public String getFotoUsuario() {
+        return fotoUsuario;
+    }
+
+    public void setFotoUsuario(String fotoUsuario) {
+        this.fotoUsuario = fotoUsuario;
+    }
 }
