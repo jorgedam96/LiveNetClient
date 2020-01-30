@@ -107,23 +107,33 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void cargarFoto() {
-        Call<Usuario> call = usuRest.findByAlias(usuarioLogeado.getAlias());
+        try {
 
-        call.enqueue(new Callback<Usuario>() {
-            @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
-                try {
-                    ivFotoPerfil.setImageBitmap(MyB64.base64ToBitmap(response.body().getFoto()));
 
-                }catch (Exception e){}
-            }
+            Call<Usuario> call = usuRest.findByAlias(usuarioLogeado.getAlias());
 
-            @Override
-            public void onFailure(Call<Usuario> call, Throwable t) {
+            call.enqueue(new Callback<Usuario>() {
+                @Override
+                public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                    try {
+                        ivFotoPerfil.setImageBitmap(MyB64.base64ToBitmap(response.body().getFoto()));
 
-            }
-        });
+                    } catch (Exception e) {
+                        if (e.getMessage() != null) {
+                            Log.e("cargarFoto", e.getMessage());
+                        }
+                    }
+                }
 
+                @Override
+                public void onFailure(Call<Usuario> call, Throwable t) {
+
+                }
+            });
+        } catch (Exception e) {
+            if (e.getMessage() != null)
+                Log.e("cargarFoto", e.getMessage());
+        }
     }
 
     @Override

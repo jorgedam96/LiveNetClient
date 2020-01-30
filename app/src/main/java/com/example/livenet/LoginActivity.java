@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 
 import com.example.livenet.BBDD.DBC;
@@ -32,14 +33,21 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void irALogin() {
+        try {
 
-        LoginFragment fl = new LoginFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager
-                .beginTransaction()
-                .setCustomAnimations(R.anim.nav_default_enter_anim, R.anim.nav_default_exit_anim, R.anim.nav_default_pop_enter_anim, R.anim.nav_default_pop_exit_anim)
-                .replace(R.id.containerLogin, fl)
-                .commit();
+
+            LoginFragment fl = new LoginFragment();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.nav_default_enter_anim, R.anim.nav_default_exit_anim, R.anim.nav_default_pop_enter_anim, R.anim.nav_default_pop_exit_anim)
+                    .replace(R.id.containerLogin, fl)
+                    .commit();
+        } catch (Exception e) {
+            if (e.getMessage() != null) {
+                Log.e("irLogin", e.getMessage());
+            }
+        }
 
     }
 }

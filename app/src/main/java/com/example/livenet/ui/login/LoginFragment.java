@@ -80,7 +80,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private RelativeLayout loadingLayout;
     private ImageView ivLoading;
     private TextView tvLoading;
-    private Animation rotation,intermitente;
+    private Animation rotation, intermitente;
 
 
     public static LoginFragment newInstance() {
@@ -92,7 +92,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-       checkAndRequestPermissions();
+        checkAndRequestPermissions();
 
         root = inflater.inflate(R.layout.login_fragment, container, false);
 
@@ -177,37 +177,46 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         String passStr = pass.getText().toString();
         //consulta si existe
 
-        Call<Usuario> call = usuariosRest.login(new LoginBody(usrStr, passStr));
-        call.enqueue(new Callback<Usuario>() {
-            @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
-                if (response.isSuccessful()) {
-                    //hay respuesta
-
-                    if (response.code() == 200) {
-                        //codigo correcto
-                        Toast.makeText(root.getContext(), "Login correcto", Toast.LENGTH_SHORT).show();
-                        Usuario usr = response.body();
-                        usr.setPasswd(passStr);
-                        loginFirebase(usr);
+        try {
 
 
-                    } else if (response.code() == 204) {
+            Call<Usuario> call = usuariosRest.login(new LoginBody(usrStr, passStr));
+            call.enqueue(new Callback<Usuario>() {
+                @Override
+                public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                    if (response.isSuccessful()) {
+                        //hay respuesta
 
-                        Toast.makeText(root.getContext(), "Contraseña o Usuario incorrecto", Toast.LENGTH_SHORT).show();
-                        loadingLayout.setVisibility(View.INVISIBLE);
+                        if (response.code() == 200) {
+                            //codigo correcto
+                            Toast.makeText(root.getContext(), "Login correcto", Toast.LENGTH_SHORT).show();
+                            Usuario usr = response.body();
+                            usr.setPasswd(passStr);
+                            loginFirebase(usr);
+
+
+                        } else if (response.code() == 204) {
+
+                            Toast.makeText(root.getContext(), "Contraseña o Usuario incorrecto", Toast.LENGTH_SHORT).show();
+                            loadingLayout.setVisibility(View.INVISIBLE);
+                        }
                     }
+
                 }
-            }
 
 
-            @Override
-            public void onFailure(Call<Usuario> call, Throwable t) {
-                Log.e("ERROR: ", Objects.requireNonNull(t.getMessage()));
-                Toast.makeText(root.getContext(), "No se puede iniciar Sesión", Toast.LENGTH_SHORT).show();
-                loadingLayout.setVisibility(View.INVISIBLE);
+                @Override
+                public void onFailure(Call<Usuario> call, Throwable t) {
+                    Log.e("ERROR: ", Objects.requireNonNull(t.getMessage()));
+                    Toast.makeText(root.getContext(), "No se puede iniciar Sesión", Toast.LENGTH_SHORT).show();
+                    loadingLayout.setVisibility(View.INVISIBLE);
+                }
+            });
+        } catch (Exception e) {
+            if (e.getMessage() != null) {
+                Log.e("comprobarUsuario", e.getMessage());
             }
-        });
+        }
     }
 
     private void irApp(Usuario user) {
@@ -218,7 +227,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         datos.putString("alias", user.getAlias());
         datos.putString("correo", user.getCorreo());
-        datos.putString("foto", user.getFoto());
+        datos.putString("foto", "defaultphoto");
         intent.putExtras(datos);
         startActivity(intent);
         getActivity().finish();
@@ -248,14 +257,18 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
                                     irApp(usuario);
 
-                                }catch(Exception ex){
+                                } catch (Exception ex) {
                                     try {
                                         reference.removeEventListener(this);
                                         //Reiniciamos la App para limpiar cualquier residuo en memoria
                                         Intent mStartActivity = new Intent(root.getContext(), LoginActivity.class);
                                         startActivity(mStartActivity);
                                         getActivity().finish();
-                                    }catch(Exception ignored){}
+                                    } catch (Exception e) {
+                                        if (e.getMessage() != null) {
+                                            Log.e("loginFirebase", e.getMessage());
+                                        }
+                                    }
                                 }
                             }
 
@@ -309,73 +322,76 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+        try {
+            String TAG = "LOG_PERMISSION";
+            Log.d(TAG, "Permission callback called-------");
+            switch (requestCode) {
+                case REQUEST_ID_MULTIPLE_PERMISSIONS: {
 
-        String TAG = "LOG_PERMISSION";
-        Log.d(TAG, "Permission callback called-------");
-        switch (requestCode) {
-            case REQUEST_ID_MULTIPLE_PERMISSIONS: {
+                    Map<String, Integer> perms = new HashMap<>();
+                    // Initialize the map with both permissions
+                    perms.put(Manifest.permission.ACCESS_COARSE_LOCATION, PackageManager.PERMISSION_GRANTED);
+                    perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
+                    perms.put(Manifest.permission.ACCESS_BACKGROUND_LOCATION, PackageManager.PERMISSION_GRANTED);
+                    perms.put(Manifest.permission.WAKE_LOCK, PackageManager.PERMISSION_GRANTED);
+                    // Fill with actual results from user
+                    if (grantResults.length > 0) {
+                        for (int i = 0; i < permissions.length; i++)
+                            perms.put(permissions[i], grantResults[i]);
+                        // Check for both permissions
 
-                Map<String, Integer> perms = new HashMap<>();
-                // Initialize the map with both permissions
-                perms.put(Manifest.permission.ACCESS_COARSE_LOCATION, PackageManager.PERMISSION_GRANTED);
-                perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
-                perms.put(Manifest.permission.ACCESS_BACKGROUND_LOCATION, PackageManager.PERMISSION_GRANTED);
-                perms.put(Manifest.permission.WAKE_LOCK, PackageManager.PERMISSION_GRANTED);
-                // Fill with actual results from user
-                if (grantResults.length > 0) {
-                    for (int i = 0; i < permissions.length; i++)
-                        perms.put(permissions[i], grantResults[i]);
-                    // Check for both permissions
-
-                    if (perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                            && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                            && perms.get(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
-                            && perms.get(Manifest.permission.WAKE_LOCK) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        Log.d(TAG, "Phone state and storage permissions granted");
-
-                    } else {
-                        Log.d(TAG, "Some permissions are not granted ask again ");
-                        //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
-//                      //shouldShowRequestPermissionRationale will return true
-                        //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) ||
-                                ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) ||
-                                ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) ||
-                                ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WAKE_LOCK)
+                        if (perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                && perms.get(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                && perms.get(Manifest.permission.WAKE_LOCK) == PackageManager.PERMISSION_GRANTED
                         ) {
-                            showDialogOK("Phone state and storage permissions required for this app",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            switch (which) {
-                                                case DialogInterface.BUTTON_POSITIVE:
-                                                    checkAndRequestPermissions();
-                                                    break;
-                                                case DialogInterface.BUTTON_NEGATIVE:
-                                                    // proceed with logic by disabling the related features or quit the app.
-                                                    break;
+                            Log.d(TAG, "Phone state and storage permissions granted");
+
+                        } else {
+                            Log.d(TAG, "Some permissions are not granted ask again ");
+                            //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
+//                      //shouldShowRequestPermissionRationale will return true
+                            //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
+                            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) ||
+                                    ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) ||
+                                    ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) ||
+                                    ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WAKE_LOCK)
+                            ) {
+                                showDialogOK("Phone state and storage permissions required for this app",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                switch (which) {
+                                                    case DialogInterface.BUTTON_POSITIVE:
+                                                        checkAndRequestPermissions();
+                                                        break;
+                                                    case DialogInterface.BUTTON_NEGATIVE:
+                                                        // proceed with logic by disabling the related features or quit the app.
+                                                        break;
+                                                }
                                             }
-                                        }
-                                    });
-                        }
-                        //permission is denied (and never ask again is  checked)
-                        //shouldShowRequestPermissionRationale will return false
-                        else {
-                            Toast.makeText(getContext(), "Go to settings and enable permissions", Toast.LENGTH_LONG)
-                                    .show();
-                            //proceed with logic by disabling the related features or quit the app.
+                                        });
+                            }
+                            //permission is denied (and never ask again is  checked)
+                            //shouldShowRequestPermissionRationale will return false
+                            else {
+                                Toast.makeText(getContext(), "Go to settings and enable permissions", Toast.LENGTH_LONG)
+                                        .show();
+                                //proceed with logic by disabling the related features or quit the app.
+                            }
                         }
                     }
                 }
             }
+        } catch (Exception e) {
+            if (e.getMessage() != null) {
+                Log.e("requestPermissionLogi", e.getMessage());
+            }
         }
-
-
     }
 
     private void showDialogOK(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(getContext())
+        new AlertDialog.Builder(root.getContext())
                 .setMessage(message)
                 .setPositiveButton("OK", okListener)
                 .setNegativeButton("Cancel", okListener)
