@@ -37,8 +37,8 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         chats.setImageDrawable(getContext().getDrawable(R.drawable.ic_message_blue_pulsed));
 
         //getFragmentManager().beginTransaction().add(R.id.nav_host_fragment, new UsersFragment()).addToBackStack(null).commit();
-        chatslist = new ChatListFragment();
-        userslist = new UsersFragment();
+
+
         return root;
     }
 
@@ -47,19 +47,24 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.chatIBMessages:
-                getFragmentManager().popBackStack();
+                chatslist = new ChatListFragment();
                 getFragmentManager().beginTransaction().setCustomAnimations(R.anim.from_left,R.anim.to_right, R.anim.from_right,R.anim.to_left)
                         .replace(R.id.nav_chat_fragment, chatslist).commit();
                 chats.setImageDrawable(getContext().getDrawable(R.drawable.ic_message_blue_pulsed));
                 userlist.setImageDrawable(getContext().getDrawable(R.drawable.ic_group_black_24dp));
-                getFragmentManager().popBackStack();
+                if(userslist != null){
+                    getFragmentManager().beginTransaction().remove(userslist).commit();
+                }
                 break;
             case R.id.chatIBUsers:
-                getFragmentManager().popBackStack();
+                userslist = new UsersFragment();
                 getFragmentManager().beginTransaction().setCustomAnimations(R.anim.from_right,R.anim.to_left, R.anim.from_left,R.anim.to_right)
                         .replace(R.id.nav_chat_fragment, userslist).commit();
                 chats.setImageDrawable(getContext().getDrawable(R.drawable.ic_message_black_24dp));
                 userlist.setImageDrawable(getContext().getDrawable(R.drawable.ic_group_blue_pulsed));
+                if(chatslist != null){
+                    getFragmentManager().beginTransaction().remove(chatslist).commit();
+                }
                 break;
 
         }

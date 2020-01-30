@@ -43,7 +43,7 @@ import retrofit2.Response;
 public class MensajeActivity extends AppCompatActivity implements View.OnClickListener {
 
     CircleImageView foto;
-    FirebaseUser fuser;
+    String localuserid;
     DatabaseReference reference;
     TextView username;
     ArrayList<String[]> remota;
@@ -77,12 +77,14 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
+        Intent intent = getIntent();
+        localuserid = intent.getStringExtra("localuserid");
         foto = findViewById(R.id.mensaje_foto);
         username = findViewById(R.id.mensajes_username);
         intent = getIntent();
         usern = intent.getStringExtra("username");
         username.setText(usern);
-        fuser = FirebaseAuth.getInstance().getCurrentUser();
+
         rellenarChat();
 
         text_send = findViewById(R.id.tvMensajeEnviado);
@@ -94,6 +96,8 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         LinearLayoutManager l = new LinearLayoutManager(getApplicationContext());
         l.setStackFromEnd(true);
         recyclerView.setLayoutManager(l);
+
+
 
     }
 
@@ -152,7 +156,7 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         String msg = text_send.getText().toString();
         if(!msg.isEmpty()){
-            sendMessage(fuser.getUid(), receiverid, msg);
+            sendMessage(localuserid, receiverid, msg);
             text_send.setText("");
         }else{
             Toast.makeText(getApplicationContext(), "No puedes enviar un mensaje vacio", Toast.LENGTH_SHORT).show();

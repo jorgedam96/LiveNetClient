@@ -245,28 +245,17 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                                 FireUser fuser = dataSnapshot.getValue(FireUser.class);
                                 try {
                                     //Comprobamos que no esté conectado desde otra localizacion
-                                    if (fuser.getStatus().equals("Conectado")) {
-                                        Toast.makeText(getContext(), "El usuario ya está conectado desde otra localizacion", Toast.LENGTH_SHORT).show();
-                                        //Si es asi le mostramos un mensaje de advertencia y no podrá conectarse
 
+                                    irApp(usuario);
+
+                                }catch(Exception ex){
+                                    try {
                                         reference.removeEventListener(this);
                                         //Reiniciamos la App para limpiar cualquier residuo en memoria
-                                        Intent mStartActivity = new Intent(getContext(), LoginActivity.class);
+                                        Intent mStartActivity = new Intent(root.getContext(), LoginActivity.class);
                                         startActivity(mStartActivity);
                                         getActivity().finish();
-                                    } else {
-                                        //En caso contrario, hara login
-                                        reference.removeEventListener(this);
-                                        irApp(usuario);
-                                    }
-                                }catch(Exception ex){
-                                    reference.removeEventListener(this);
-                                    Toast.makeText(getContext(), "El usuario ya está conectado desde otra localizacion", Toast.LENGTH_SHORT).show();
-                                    //Reiniciamos la App para limpiar cualquier residuo en memoria
-                                    Intent mStartActivity = new Intent(getContext(), LoginActivity.class);
-                                    startActivity(mStartActivity);
-                                    getActivity().finish();
-
+                                    }catch(Exception ignored){}
                                 }
                             }
 

@@ -158,8 +158,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        auth.signOut();
+
         status("Desconectado");
+        auth.signOut();
         super.onDestroy();
     }
 
@@ -288,7 +289,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void status(String status){
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(usuario.getUid());
+
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("status", status);
@@ -298,15 +300,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         status("Conectado");
     }
 
-    @Override
-    protected void onPause() {
-        auth.signOut();
-        status("Desconectado");
-        super.onPause();
-    }
+
 
 
 }

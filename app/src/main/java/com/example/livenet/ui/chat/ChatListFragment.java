@@ -69,17 +69,20 @@ public class ChatListFragment extends Fragment {
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Chat chat = snapshot.getValue(Chat.class);
+                    try {
+                        if (chat.getSender().equals(fuser.getUid())) {
+                            if (!usersList.contains(chat.getReceiver())) {
+                                usersList.add(chat.getReceiver());
+                            }
 
-                    if (chat.getSender().equals(fuser.getUid())) {
-                        if(!usersList.contains(chat.getReceiver())) {
-                            usersList.add(chat.getReceiver());
                         }
+                        if (chat.getReceiver().equals(fuser.getUid())) {
+                            if (!usersList.contains(chat.getSender())) {
+                                usersList.add(chat.getSender());
+                            }
+                        }
+                    }catch(NullPointerException ex){
 
-                    }
-                    if (chat.getReceiver().equals(fuser.getUid())) {
-                        if(!usersList.contains(chat.getSender())) {
-                            usersList.add(chat.getSender());
-                        }
                     }
 
                 }
@@ -114,7 +117,7 @@ public class ChatListFragment extends Fragment {
             mUsers.add(user);
         }
         dbc.close();
-        adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager());
+        adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid());
         recyclerView.setAdapter(adapter);
     }
 

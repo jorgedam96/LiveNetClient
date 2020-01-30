@@ -30,11 +30,13 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
     private ArrayList<FireUser> list;
     private Context context;
     private FragmentManager fragmentManager;
+    private String localuserid;
 
-    public UsersAdapter(ArrayList<FireUser> list, Context context, FragmentManager fragmentManager){
+    public UsersAdapter(ArrayList<FireUser> list, Context context, FragmentManager fragmentManager, String localuserid){
         this.list = list;
         this.context = context;
         this.fragmentManager = fragmentManager;
+        this.localuserid = localuserid;
     }
 
     @NonNull
@@ -70,6 +72,7 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
             public void onClick(View v) {
                 Intent intent = new Intent(context, MensajeActivity.class);
                 intent.putExtra("username", user.getUsername());
+                intent.putExtra("localuserid",localuserid);
                 context.startActivity(intent);
             }
         });
