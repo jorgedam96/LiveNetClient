@@ -16,6 +16,7 @@
         android:gravity="end"
         android:orientation="vertical"
         android:paddingStart="20dp"
+        android:paddingTop="3dp"
         android:paddingEnd="10dp"
         android:paddingBottom="3dp">
 
