@@ -38,7 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>{
+public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> {
 
     private ArrayList<FireUser> list;
     private Context context;
@@ -48,7 +48,7 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
     private AmigosRest amigosRest;
     private boolean usuarios;
 
-    public UsersAdapter(ArrayList<FireUser> list, Context context, FragmentManager fragmentManager, String localuserid, boolean usuarios, String localusername){
+    public UsersAdapter(ArrayList<FireUser> list, Context context, FragmentManager fragmentManager, String localuserid, boolean usuarios, String localusername) {
         this.list = list;
         this.context = context;
         this.fragmentManager = fragmentManager;
@@ -63,7 +63,7 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View listitem = layoutInflater.inflate(R.layout.user_item, parent ,false);
+        View listitem = layoutInflater.inflate(R.layout.user_item, parent, false);
         UsersAdapter.ViewHolder viewHolder = new UsersAdapter.ViewHolder(listitem);
 
         return viewHolder;
@@ -80,13 +80,13 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
             } else {
                 holder.photo.setImageBitmap(MyB64.base64ToBitmap(user.getImage()));
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             holder.photo.setImageDrawable(context.getDrawable(R.drawable.defaultphoto));
         }
         holder.nombre.setText(user.getUsername());
         try {
             holder.status.setText(user.getStatus());
-        }catch(Exception ignored){
+        } catch (Exception ignored) {
             holder.status.setText("");
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -95,12 +95,12 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
             public void onClick(View v) {
                 Intent intent = new Intent(context, MensajeActivity.class);
                 intent.putExtra("username", user.getUsername());
-                intent.putExtra("localuserid",localuserid);
+                intent.putExtra("localuserid", localuserid);
                 context.startActivity(intent);
             }
         });
 
-        if(usuarios) {
+        if (usuarios) {
 
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -109,15 +109,16 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
                 }
             });
 
-        }else{
+        } else {
             holder.delete.setVisibility(View.INVISIBLE);
         }
 
 
     }
+
     private void alertDialog(final String nombre) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setMessage("Accion irreversible: ¿Quiere borrar a "+nombre+" de tu lista de amigos?");
+        dialog.setMessage("Accion irreversible: ¿Quiere borrar a " + nombre + " de tu lista de amigos?");
         dialog.setTitle("Alerta");
 
         dialog.setPositiveButton("Confirmar",
@@ -140,28 +141,27 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
     }
 
 
-    private void borrarAmigo(String local, String amigo){
-        System.out.println("Local "+local+" amigo: "+amigo);
+    private void borrarAmigo(String local, String amigo) {
+        System.out.println("Local " + local + " amigo: " + amigo);
         try {
             this.amigosRest = APIUtils.getAmigosService();
 
-            Call call = this.amigosRest.borraramigo(new String[]{local,amigo});
+            Call<String> call = this.amigosRest.borraramigo(new String[]{local, amigo});
 
-            call.enqueue(new Callback<String[]>() {
+            call.enqueue(new Callback<String>() {
                 @Override
-                public void onResponse(Call call, Response response) {
+                public void onResponse(Call<String> call, Response<String> response) {
                     if (response.code() == 200) {
                         Toast.makeText(context, "Se ha borrado a: " + amigo, Toast.LENGTH_SHORT).show();
-                    } else if (response.code() == 204) {
-                        Toast.makeText(context, "Algo salio mal", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Algo salio mal" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                     }
                     Log.e("borraramigo", "onresponse");
 
-                    
                 }
 
                 @Override
-                public void onFailure(Call call, Throwable t) {
+                public void onFailure(Call<String> call, Throwable t) {
 
                 }
             });
@@ -178,7 +178,7 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
         return list.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public CircleImageView photo;
         public TextView nombre;
         public TextView status;

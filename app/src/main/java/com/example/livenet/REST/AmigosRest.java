@@ -22,6 +22,6 @@ public interface AmigosRest {
     @POST("agregaramigo")
     Call<String> agregarAmigo (@Body String[] amigos);
 
-    @POST("borraramigo")
+    @DELETE("borraramigo/")
     Call<String> borraramigo(@Body String[] amigos);
 }

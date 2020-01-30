@@ -6,17 +6,7 @@
     android:layout_width="52dp"
     android:layout_height="wrap_content">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/user_dp"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginStart="14.5dp"
-        android:layout_marginTop="7dp"
-        android:contentDescription="@null"
-        app:civ_border_color="#fff"
-        android:background="@drawable/defaultphoto"/>
+
 
     <RelativeLayout
         android:layout_width="59dp"
@@ -24,6 +14,17 @@
         android:background="@drawable/marker_vacio"
         android:backgroundTint="@color/azulRoyal">
 
-
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/user_dp"
+            android:translationZ="1dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="18.5dp"
+            android:layout_marginTop="7dp"
+            android:contentDescription="@null"
+            app:civ_border_color="#fff"
+            android:background="@drawable/defaultphoto"/>
     </RelativeLayout>
 </RelativeLayout>
