@@ -6,8 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -28,7 +30,11 @@ import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
+import com.example.livenet.REST.LocalizacionesRest;
+import com.example.livenet.REST.UsuariosRest;
 import com.example.livenet.model.Localizacion;
+import com.example.livenet.model.Usuario;
+import com.example.livenet.util.MyB64;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.zxing.BarcodeFormat;
@@ -37,6 +43,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -47,6 +54,7 @@ import retrofit2.Retrofit;
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
 
+    private static final int GALERIA = 1;
     private BottomNavigationView menuBottom;
     private ImageButton logout;
     private CircleImageView ivFotoPerfil;
@@ -54,14 +62,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private Button btnVerQR;
     private TextView tvNombre;
     private AmigosRest amigoRest;
-    private String usuarioLogeado;
+    private Usuario usuarioLogeado;
     private View root;
-
+    private UsuariosRest usuRest;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         root = inflater.inflate(R.layout.fragment_usuario, container, false);
+        usuRest = APIUtils.getUsuService();
 
         Objects.requireNonNull(((MainActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
         //Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -75,7 +84,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             photoHeader.invalidate();
         }
 
-        usuarioLogeado = ((MainActivity) getActivity()).getLogged().getAlias();
+        usuarioLogeado = ((MainActivity) getActivity()).getLogged();
 
         logout = root.findViewById(R.id.btLogout);
         logout.setOnClickListener(this);
@@ -84,7 +93,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         btnAgregarAmigo = root.findViewById(R.id.btnAgregarAmigo);
         btnVerQR = root.findViewById(R.id.btnVerQR);
         tvNombre = root.findViewById(R.id.tvName);
-        tvNombre.setText(usuarioLogeado);
+        tvNombre.setText(usuarioLogeado.getAlias());
         ivFotoPerfil.setOnClickListener(this);
         btnVerQR.setOnClickListener(this);
         btnAgregarAmigo.setOnClickListener(this);
@@ -93,15 +102,35 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         ((MainActivity) getActivity()).comprobarAmigos();
         ((MainActivity) getActivity()).callFriends();
 
-
+        cargarFoto();
         return root;
+    }
+
+    private void cargarFoto() {
+        Call<Usuario> call = usuRest.findByAlias(usuarioLogeado.getAlias());
+
+        call.enqueue(new Callback<Usuario>() {
+            @Override
+            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                try {
+                    ivFotoPerfil.setImageBitmap(MyB64.base64ToBitmap(response.body().getFoto()));
+
+                }catch (Exception e){}
+            }
+
+            @Override
+            public void onFailure(Call<Usuario> call, Throwable t) {
+
+            }
+        });
+
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btLogout:
-                ((MainActivity)getActivity()).status("Desconectado");
+                ((MainActivity) getActivity()).status("Desconectado");
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
                 getActivity().finish();
@@ -120,11 +149,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void reiniciarApp(){
+    private void reiniciarApp() {
 
     }
 
     private void cambiarFoto() {
+
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(galleryIntent, GALERIA);
 
     }
 
@@ -165,6 +198,49 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         integrator.initiateScan();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == MainActivity.RESULT_CANCELED) {
+            return;
+        }
+
+        if (requestCode == GALERIA) {
+            if (data != null) {
+                // Obtenemos su URI con su dirección temporal
+                Uri contentURI = data.getData();
+                try {
+                    // Obtenemos el bitmap de su almacenamiento externo
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getActivity()).getContentResolver(), contentURI);
+                    //setea la imagen en el juego y en el image view
+                    ivFotoPerfil.setImageBitmap(MyB64.comprimirImagen(bitmap, root.getContext()));
+                    //insert en rest
+                    usuarioLogeado.setFoto(MyB64.bitmapToBase64(MyB64.comprimirImagen(bitmap, root.getContext())));
+
+
+                    Call<Usuario> call = usuRest.update(usuarioLogeado.getAlias(), usuarioLogeado);
+
+                    call.enqueue(new Callback<Usuario>() {
+                        @Override
+                        public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Usuario> call, Throwable t) {
+
+                        }
+                    });
+
+                } catch (IOException e) {
+                    if (e.getMessage() != null)
+                        Log.e("Foto Galeria", e.getMessage());
+
+                    Toast.makeText(getContext(), "¡Fallo Galeria!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
 
 
 }
