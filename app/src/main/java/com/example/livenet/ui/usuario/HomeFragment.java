@@ -6,8 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -29,6 +31,7 @@ import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
 import com.example.livenet.model.Localizacion;
+import com.example.livenet.util.MyB64;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.zxing.BarcodeFormat;
@@ -37,6 +40,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -47,6 +51,7 @@ import retrofit2.Retrofit;
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
 
+    private static final int GALERIA = 1;
     private BottomNavigationView menuBottom;
     private ImageButton logout;
     private CircleImageView ivFotoPerfil;
@@ -101,7 +106,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btLogout:
-                ((MainActivity)getActivity()).status("Desconectado");
+                ((MainActivity) getActivity()).status("Desconectado");
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
                 getActivity().finish();
@@ -120,11 +125,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void reiniciarApp(){
+    private void reiniciarApp() {
 
     }
 
     private void cambiarFoto() {
+
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(galleryIntent, GALERIA);
 
     }
 
@@ -165,6 +174,33 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         integrator.initiateScan();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == MainActivity.RESULT_CANCELED) {
+            return;
+        }
+
+        if (requestCode == GALERIA) {
+            if (data != null) {
+                // Obtenemos su URI con su dirección temporal
+                Uri contentURI = data.getData();
+                try {
+                    // Obtenemos el bitmap de su almacenamiento externo
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getActivity()).getContentResolver(), contentURI);
+                    //setea la imagen en el juego y en el image view
+                    ivFotoPerfil.setImageBitmap(MyB64.comprimirImagen(bitmap,root.getContext()));
+                    //insert en rest
+
+                    //APIUtils.getUsuService().update(usuarioLogeado,)
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "¡Fallo Galeria!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
 
 
 }
