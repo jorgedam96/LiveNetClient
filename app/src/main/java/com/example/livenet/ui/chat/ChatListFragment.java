@@ -120,6 +120,13 @@ public class ChatListFragment extends Fragment {
             FireUser user = dbc.selectByToken(token);
             mUsers.add(user);
         }
+        for(FireUser user : mUsers){
+            if(user.getUsername().isEmpty()){
+                mUsers.remove(user);
+            }
+
+        }
+
         dbc.close();
         adapter = new UsersAdapter(mUsers, root.getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid(),false, ((MainActivity)getActivity()).getLogged().getAlias());
         recyclerView.setAdapter(adapter);

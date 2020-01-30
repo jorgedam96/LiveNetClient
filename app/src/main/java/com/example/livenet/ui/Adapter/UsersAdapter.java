@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.livenet.BBDD.DBC;
 import com.example.livenet.MensajeActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
@@ -105,7 +106,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    alertDialog(user.getUsername());
+                    alertDialog(user.getUsername(), position);
                 }
             });
 
@@ -116,7 +117,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
     }
 
-    private void alertDialog(final String nombre) {
+    private void alertDialog(final String nombre, int position) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         dialog.setMessage("Accion irreversible: ¿Quiere borrar a " + nombre + " de tu lista de amigos?");
         dialog.setTitle("Alerta");
@@ -125,7 +126,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,
                                         int which) {
-                        borrarAmigo(localusername, nombre);
+                        borrarAmigo(localusername, nombre, position);
 
                     }
                 });
@@ -141,7 +142,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     }
 
 
-    private void borrarAmigo(String local, String amigo) {
+    private void borrarAmigo(String local, String amigo, int position) {
         System.out.println("Local " + local + " amigo: " + amigo);
         try {
             this.amigosRest = APIUtils.getAmigosService();
@@ -153,6 +154,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                 public void onResponse(Call<String> call, Response<String> response) {
                     if (response.code() == 200) {
                         Toast.makeText(context, "Se ha borrado a: " + amigo, Toast.LENGTH_SHORT).show();
+                        DBC dbc = new DBC(context,"localCfgBD", null, 1);
+                        dbc.delete(amigo);
+                        dbc.close();
+                        removeItem(position);
                     } else {
                         Toast.makeText(context, "Algo salio mal" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                     }
@@ -172,6 +177,13 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
         }
     }
 
+    public void removeItem(int position) {
+        list.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, list.size());
+
+
+    }
 
     @Override
     public int getItemCount() {
