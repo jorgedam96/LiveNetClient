@@ -1,6 +1,7 @@
 package com.example.livenet.ui.login;
 
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,6 +30,7 @@ import com.example.livenet.Utilidades;
 
 import com.example.livenet.model.Usuario;
 
+import com.example.livenet.util.MyB64;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -140,7 +142,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
 
     }
 
-    private void inputCheck(){
+    private void inputCheck() {
         usuario.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -151,11 +153,11 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String nickname = usuario.getText().toString();
 
-                if(nickname.length() >= 4){
+                if (nickname.length() >= 4) {
                     nombreok = true;
                     nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
                     usuario.setError(null);
-                }else{
+                } else {
                     nombreok = false;
                     nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     usuario.setError("El nombre debe tener minimo 4 caracteres!");
@@ -178,11 +180,11 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String mail = email.getText().toString();
-                if (mail.matches("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")){
+                if (mail.matches("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")) {
                     isEmail = true;
                     emaillayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
                     email.setError(null);
-                }else{
+                } else {
                     isEmail = false;
                     emaillayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     email.setError("Debe ser un email valido!");
@@ -206,11 +208,11 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String pwd = pass.getText().toString();
 
-                if(pwd.length() >= 6){
+                if (pwd.length() >= 6) {
                     pwd6 = true;
                     passlayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
                     pass.setError(null);
-                }else{
+                } else {
                     pwd6 = false;
                     passlayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     pass.setError("La contraseña debe tener minimo 6 caracteres");
@@ -237,11 +239,11 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String pwd = passcheck.getText().toString();
 
-                if(pwd.equals(pass.getText().toString())){
+                if (pwd.equals(pass.getText().toString())) {
                     pwdequals = true;
                     passchecklayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
                     passcheck.setError(null);
-                }else{
+                } else {
                     pwdequals = false;
 
                     passchecklayout.setBoxStrokeColor(getResources().getColor(R.color.error));
@@ -259,12 +261,12 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
     }
 
 
-    private void checkData(){
-        if(nombreok && isEmail && pwd6 && pwdequals){
+    private void checkData() {
+        if (nombreok && isEmail && pwd6 && pwdequals) {
 
             btnRegistrar.setEnabled(true);
             btnRegistrar.setCardBackgroundColor(getResources().getColor(R.color.colorAzulClaro));
-        }else{
+        } else {
             btnRegistrar.setEnabled(false);
             btnRegistrar.setCardBackgroundColor(getResources().getColor(R.color.disabled));
         }
@@ -348,7 +350,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
         String passStr = pass.getText().toString();
         String emailStr = email.getText().toString();
 
-        final Usuario user = new Usuario(0, usuarioStr, emailStr, passStr, "defaultphoto",token);
+        final Usuario user = new Usuario(0, usuarioStr, emailStr, passStr, MyB64.bitmapToBase64(BitmapFactory.decodeResource(getResources(), R.drawable.defaultphoto)), token);
         user.setToken(token);
         System.out.println(user.getToken());
         Call<Usuario> call = usuariosRest.create(user);
@@ -387,7 +389,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                         hashMap.put("id", userid);
                         hashMap.put("username", usuario.getText().toString());
                         hashMap.put("image", "defaultphoto");
-                        hashMap.put("status","Desconectado");
+                        hashMap.put("status", "Desconectado");
 
 
                         reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -395,7 +397,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     registrarUsuario(userid);
-                                }else{
+                                } else {
                                     layoutLoading.setVisibility(View.INVISIBLE);
                                 }
                             }
