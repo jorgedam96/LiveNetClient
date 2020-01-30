@@ -4,8 +4,10 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,8 +31,11 @@ import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.LocalizacionesRest;
+import com.example.livenet.REST.UsuariosRest;
 import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Localizacion;
+import com.example.livenet.model.Usuario;
+import com.example.livenet.util.MyB64;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -50,6 +55,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
@@ -60,7 +66,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MapaFragment extends Fragment implements OnMapReadyCallback{
+public class MapaFragment extends Fragment implements OnMapReadyCallback {
 
 
     private View root;
@@ -77,6 +83,12 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
     private Marker miMarker;
     private ArrayList<Marker> marcadores = new ArrayList<>();
     private DBC dbc;
+    Bitmap b = null;
+    private boolean foto;
+    private HashMap<String, Bitmap> marcadoresNombre;
+    private int contador = 0;
+    private boolean buscarFoto = true;
+
 
     @Override
     public void setRetainInstance(boolean retain) {
@@ -88,6 +100,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
         super.onCreate(savedInstanceState);
         handler = new Handler();
         aliasLogeado = ((MainActivity) getActivity()).getLogged().getAlias();
+        marcadoresNombre = new HashMap<String, Bitmap>();
     }
 
     @Override
@@ -110,8 +123,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
 
         locRest = APIUtils.getLocService();
 
-        ((MainActivity)getActivity()).comprobarAmigos();
-        ((MainActivity)getActivity()).callFriends();
+        ((MainActivity) getActivity()).comprobarAmigos();
+        ((MainActivity) getActivity()).callFriends();
 
         return root;
     }
@@ -194,12 +207,12 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
         if (miMarker != null) {
             miMarker.remove();
         }
-
+/*
         miMarker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(l.getLatitude(), l.getLongitude()))
                 .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
                 .title("Tú"));
-
+*/
     }
 
     private void acercarCamara(Location location) {
@@ -210,7 +223,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
         }
 
     }
-
 
 
     private void configurarIUMapa() {
@@ -276,7 +288,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
                         ((MainActivity) getActivity()).getLogged().getAlias(),
                         ultima.getLatitude(),
                         ultima.getLongitude(),
-                        new java.util.Date(),ultima.getAccuracy()));
+                        new java.util.Date(), ultima.getAccuracy()));
 
                 call.enqueue(new Callback<Localizacion>() {
                     @Override
@@ -304,10 +316,12 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
             ArrayList<FireUser> fbUser = dbc.seleccionarData();
             dbc.close();
             List<String> amigos = new ArrayList<>();
+            for (FireUser f : fbUser) {
+                amigos.add(f.getUsername());
+                buscarFotoUsuarios(f.getUsername());
+            }
+            buscarFoto = false;
 
-            for (FireUser f : fbUser){
-              amigos.add(f.getUsername());
-          }
 
             Call<List<Localizacion>> call = locRest.findAllByAmigos(amigos);
             call.enqueue(new Callback<List<Localizacion>>() {
@@ -339,13 +353,13 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
         try {
             mMap.clear();
-           // ponerMiMarcador(ultima);
 
             for (int i = 0; i < localizaciones.size(); i++) {
                 if (!localizaciones.get(i).getAlias().equals(aliasLogeado)) {
+
                     mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
-                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(localizaciones.get(i).getAlias()))))
                             .title(localizaciones.get(i).getAlias()));
 
                     mMap.addCircle(new CircleOptions()
@@ -363,13 +377,46 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
+    private void buscarFotoUsuarios(String alias) {
+        if (buscarFoto) {
+            try {
+                marcadoresNombre = new HashMap<String, Bitmap>();
+                UsuariosRest usuRest = APIUtils.getUsuService();
 
-    public static Bitmap createCustomMarker(Context context, @DrawableRes int resource) {
+                Call<Usuario> call = usuRest.findByAlias(alias);
+                Log.i("For contador", String.valueOf(contador));
+
+                call.enqueue(new Callback<Usuario>() {
+                    @Override
+                    public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                        marcadoresNombre.put(alias, MyB64.base64ToBitmap(response.body().getFoto()));
+
+                        Log.i("response contador", String.valueOf(response));
+                        Log.i("hashmap", marcadoresNombre.toString());
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Usuario> call, Throwable t) {
+                    }
+                });
+
+
+            } catch (
+                    Exception e) {
+                if (e.getMessage() != null) {
+                    Log.e("buscarFoto", e.getMessage());
+                }
+            }
+        }
+    }
+
+    public static Bitmap createCustomMarker(Context context, Bitmap resource) {
 
         View marker = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.marker, null);
 
         CircleImageView markerImage = (CircleImageView) marker.findViewById(R.id.user_dp);
-        markerImage.setImageResource(resource);
+        markerImage.setImageBitmap(resource);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);

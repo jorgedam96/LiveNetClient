@@ -15,7 +15,8 @@
         android:layout_marginStart="15dp"
         android:layout_marginTop="7dp"
         android:contentDescription="@null"
-        app:civ_border_color="#fff" />
+        app:civ_border_color="#fff"
+        android:background="@drawable/defaultphoto"/>
 
     <RelativeLayout
         android:layout_width="59dp"
