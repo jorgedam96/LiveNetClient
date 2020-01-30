@@ -18,7 +18,7 @@
         android:paddingStart="20dp"
         android:paddingTop="3dp"
         android:paddingEnd="10dp"
-        android:paddingBottom="3dp">
+        android:paddingBottom="5dp">
 
         <TextView
             android:id="@+id/tvUserChat"
