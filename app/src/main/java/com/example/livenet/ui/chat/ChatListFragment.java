@@ -37,6 +37,7 @@ public class ChatListFragment extends Fragment {
     private UsersAdapter adapter;
     FirebaseUser fuser;
     DatabaseReference reference;
+    private View root;
 
     private ArrayList<String> usersList;
 
@@ -47,11 +48,11 @@ public class ChatListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.chat_list_fragment, container, false);
+         root = inflater.inflate(R.layout.chat_list_fragment, container, false);
         ((MainActivity) getActivity()).comprobarAmigos();
         ((MainActivity) getActivity()).callFriends();
 
-        recyclerView = view.findViewById(R.id.rvChatsList);
+        recyclerView = root.findViewById(R.id.rvChatsList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
@@ -97,7 +98,7 @@ public class ChatListFragment extends Fragment {
             }
         };
         reference.addValueEventListener(listado);
-        return view;
+        return root;
     }
 
     @Override
@@ -108,6 +109,9 @@ public class ChatListFragment extends Fragment {
     }
 
     private void readChats() {
+        try {
+
+
         mUsers.clear();
         String[] tokensUser;
         usersList.toArray(tokensUser = new String[usersList.size()]);
@@ -117,9 +121,13 @@ public class ChatListFragment extends Fragment {
             mUsers.add(user);
         }
         dbc.close();
-        adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid());
+        adapter = new UsersAdapter(mUsers, root.getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid());
         recyclerView.setAdapter(adapter);
-    }
+    }catch (Exception e){
+            if (e.getMessage()!=null){
+                System.out.println(" read chats: "+e.getMessage());
+            }
+        }}
 
 
     @Override
