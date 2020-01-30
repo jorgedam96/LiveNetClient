@@ -26,8 +26,8 @@ public interface UsuariosRest {
     @GET("usuarios/{alias}")
     Call<Usuario> findByAlias(@Path("alias") String alias);
 
-   @POST("usuarios/login")
-   Call<Usuario> login(@Body LoginBody loginBody);
+    @POST("usuarios/login")
+    Call<Usuario> login(@Body LoginBody loginBody);
 
 
     @POST("insertar_usuario")
