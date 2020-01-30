@@ -113,6 +113,7 @@ public class ChatListFragment extends Fragment {
             FireUser user = dbc.selectByToken(token);
             mUsers.add(user);
         }
+        dbc.close();
         adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager());
         recyclerView.setAdapter(adapter);
     }
