@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         auth.signOut();
+        status("Desconectado");
         super.onDestroy();
     }
 
@@ -302,7 +303,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
+        auth.signOut();
         status("Desconectado");
+        super.onPause();
     }
+
+
 }
