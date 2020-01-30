@@ -248,12 +248,20 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void status(String status) {
+        try {
+            reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("status", status);
+            reference.updateChildren(hashMap);
+        }catch(Exception ex){
+            reference = FirebaseDatabase.getInstance().getReference("Users").child(getLogged().getToken());
 
-        HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("status", status);
-        reference.updateChildren(hashMap);
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("status", status);
+            reference.updateChildren(hashMap);
+
+        }
     }
 
     @Override

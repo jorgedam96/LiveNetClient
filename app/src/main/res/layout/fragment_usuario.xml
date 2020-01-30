@@ -14,7 +14,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:background="@drawable/ic_log_out_white"
+        android:background="@drawable/no_background_ripple_blue"
         android:clickable="true" />
 
     <include layout="@layout/profile_header" />
