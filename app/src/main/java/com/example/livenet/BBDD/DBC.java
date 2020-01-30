@@ -140,7 +140,7 @@ public class DBC extends SQLiteOpenHelper {
         try {
             db.insert("Amigos", null, values);
         }catch(SQLiteException ex){
-            db.update("Amigos", values, "alias=" + amigo[0], null);
+            
 
         }
         db.close();

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
@@ -37,4 +38,12 @@
             android:layout_marginStart="10dp"
             android:textSize="12sp"/>
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/ibDeleteFriend"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/white"
+        app:srcCompat="@drawable/ic_more_vert_black_24dp" />
 </RelativeLayout>
