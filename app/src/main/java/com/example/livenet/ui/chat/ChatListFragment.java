@@ -115,7 +115,7 @@ public class ChatListFragment extends Fragment {
         mUsers.clear();
         String[] tokensUser;
         usersList.toArray(tokensUser = new String[usersList.size()]);
-        DBC dbc = new DBC(getContext(), "localCfgBD", null, 1);
+        DBC dbc = new DBC(root.getContext(), "localCfgBD", null, 1);
         for(String token : tokensUser){
             FireUser user = dbc.selectByToken(token);
             mUsers.add(user);
