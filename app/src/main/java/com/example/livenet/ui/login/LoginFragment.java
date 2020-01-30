@@ -34,16 +34,11 @@ import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.UsuariosRest;
 import com.example.livenet.Utilidades;
-import com.example.livenet.model.FireUser;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -208,69 +203,31 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     }
 
     private void irApp(Usuario user) {
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-            firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        Intent intent = new Intent((LoginActivity) getActivity(), MainActivity.class);
+        Bundle datos = new Bundle();
 
-            Intent intent = new Intent((LoginActivity) getActivity(), MainActivity.class);
-            Bundle datos = new Bundle();
-
-            datos.putString("alias", user.getAlias());
-            datos.putString("correo", user.getCorreo());
-            datos.putString("foto", user.getFoto());
-            intent.putExtras(datos);
-            startActivity(intent);
-            getActivity().finish();
-
+        datos.putString("alias", user.getAlias());
+        datos.putString("correo", user.getCorreo());
+        datos.putString("foto", user.getFoto());
+        intent.putExtras(datos);
+        startActivity(intent);
+        getActivity().finish();
 
     }
 
-
-    private LoginFragment returnThis(){
-
-        return this;
-    }
 
     //Login en firebase con los datos del usuario
     private void loginFirebase(Usuario usuario) {
         auth.signInWithEmailAndPassword(usuario.getCorreo(), usuario.getPasswd()).
                 addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        String uid = auth.getCurrentUser().getUid();
-
-                        //Buscamos el usuario en Firebase
-                        reference = FirebaseDatabase.getInstance().getReference("Users").child(uid);
-
-                        reference.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                System.out.println(dataSnapshot.getChildrenCount());
-                                FireUser fuser = dataSnapshot.getValue(FireUser.class);
-
-                                //Comprobamos que no esté conectado desde otra localizacion
-                                if(fuser.getStatus().equals("Conectado")){
-                                    Toast.makeText(getContext(),"El usuario ya está conectado desde otra localizacion", Toast.LENGTH_SHORT).show();
-                                    //Si es asi le mostramos un mensaje de advertencia y no podrá conectarse
-                                    reference.removeEventListener(this);
-                                    getFragmentManager().beginTransaction().replace(R.id.containerLogin, new LoginFragment()).commit();
-
-                                }else{
-                                    //En caso contrario, hara login
-                                    irApp(usuario);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
+                        irApp(usuario);
                     }
                 });
 
     }
-
-
 
 
     private boolean checkAndRequestPermissions() {
@@ -385,10 +342,4 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 .show();
     }
 
-    @Override
-    public void onDestroy() {
-        auth.signOut();
-        super.onDestroy();
-
-    }
 }

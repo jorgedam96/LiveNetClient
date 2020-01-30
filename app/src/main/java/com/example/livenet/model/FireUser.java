@@ -10,6 +10,12 @@ public class FireUser {
     public FireUser() {
     }
 
+    public FireUser(String id, String image, String username) {
+        this.id = id;
+        this.username = username;
+        this.image = image;
+    }
+
     public FireUser(String id, String image, String username, String status) {
         this.id = id;
         this.username = username;

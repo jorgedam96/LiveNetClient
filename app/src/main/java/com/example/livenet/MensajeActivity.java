@@ -59,7 +59,6 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
     //Elementos UI
     private EditText text_send;
     private ImageButton bt_send;
-    private TextView status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +95,6 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         l.setStackFromEnd(true);
         recyclerView.setLayoutManager(l);
 
-        status = findViewById(R.id.UsersStatus);
-
     }
 
 
@@ -133,27 +130,6 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-
-
-/*
-    private void estadoSender(String userid){
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(userid).child("status");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String estado = dataSnapshot.getValue(String.class);
-
-                status.setText(estado);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
-*/
     private void sendMessage(String sender, String receiver, String message){
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
@@ -198,7 +174,6 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
                 }catch(Exception ignored){
 
                 }
-               // estadoSender(userid);
             }
 
             @Override

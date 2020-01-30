@@ -66,18 +66,16 @@ public class ChatListFragment extends Fragment {
 
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Chat chat = snapshot.getValue(Chat.class);
-                    try {
-                        if (chat.getSender().equals(fuser.getUid())) {
-                            usersList.add(chat.getReceiver());
 
-                        }
-                    }catch(Exception ex) {}
-                        if (chat.getReceiver().equals(fuser.getUid())) {
+                    if(chat.getSender().equals(fuser.getUid())){
+                        usersList.add(chat.getReceiver());
 
-                            usersList.add(chat.getSender());
+                    }
+                    if(chat.getReceiver().equals(fuser.getUid())){
 
-                        }
+                        usersList.add(chat.getSender());
 
+                    }
                 }
 
                 readChats();
