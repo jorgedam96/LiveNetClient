@@ -45,5 +45,5 @@
         android:layout_height="50dp"
         android:layout_alignParentEnd="true"
         android:background="@android:color/white"
-        app:srcCompat="@drawable/ic_more_vert_black_24dp" />
+        app:srcCompat="@drawable/ic_clear_black_24dp" />
 </RelativeLayout>

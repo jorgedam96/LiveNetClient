@@ -62,7 +62,7 @@ public class UsersFragment extends Fragment {
     private void readUsers() {
         dbc = new DBC(getActivity(), "localCfgBD", null, 1);
         mUsers = dbc.seleccionarData();
-        adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid());
+        adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid(),true,  ((MainActivity)getActivity()).getLogged().getAlias());
         recyclerView.setAdapter(adapter);
     }
 

@@ -121,7 +121,7 @@ public class ChatListFragment extends Fragment {
             mUsers.add(user);
         }
         dbc.close();
-        adapter = new UsersAdapter(mUsers, root.getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid());
+        adapter = new UsersAdapter(mUsers, root.getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid(),false, ((MainActivity)getActivity()).getLogged().getAlias());
         recyclerView.setAdapter(adapter);
     }catch (Exception e){
             if (e.getMessage()!=null){
