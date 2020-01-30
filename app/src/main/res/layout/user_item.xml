@@ -44,6 +44,6 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignParentEnd="true"
-        android:background="@android:color/white"
+        android:background="@drawable/chat_buttons_effect"
         app:srcCompat="@drawable/ic_clear_black_24dp" />
 </RelativeLayout>
