@@ -41,8 +41,8 @@ public class MyB64 {
     public static Bitmap comprimirImagen(Bitmap myBitmap, Context context) {
         Bitmap bitmap;
         try{
-        float porcentaje = 144 / (float) myBitmap.getWidth();
-         bitmap= Bitmap.createScaledBitmap(myBitmap, 144, (int) (myBitmap.getHeight()*porcentaje), false);
+        float porcentaje = 360 / (float) myBitmap.getWidth();
+         bitmap= Bitmap.createScaledBitmap(myBitmap, 360, (int) (myBitmap.getHeight()*porcentaje), false);
         }catch(Exception ex){
             bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.defaultphoto);
 

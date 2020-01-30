@@ -30,7 +30,10 @@ import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
+import com.example.livenet.REST.LocalizacionesRest;
+import com.example.livenet.REST.UsuariosRest;
 import com.example.livenet.model.Localizacion;
+import com.example.livenet.model.Usuario;
 import com.example.livenet.util.MyB64;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -59,14 +62,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private Button btnVerQR;
     private TextView tvNombre;
     private AmigosRest amigoRest;
-    private String usuarioLogeado;
+    private Usuario usuarioLogeado;
     private View root;
-
+    private UsuariosRest usuRest;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         root = inflater.inflate(R.layout.fragment_usuario, container, false);
+        usuRest = APIUtils.getUsuService();
 
         Objects.requireNonNull(((MainActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
         //Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -80,7 +84,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             photoHeader.invalidate();
         }
 
-        usuarioLogeado = ((MainActivity) getActivity()).getLogged().getAlias();
+        usuarioLogeado = ((MainActivity) getActivity()).getLogged();
 
         logout = root.findViewById(R.id.btLogout);
         logout.setOnClickListener(this);
@@ -89,7 +93,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         btnAgregarAmigo = root.findViewById(R.id.btnAgregarAmigo);
         btnVerQR = root.findViewById(R.id.btnVerQR);
         tvNombre = root.findViewById(R.id.tvName);
-        tvNombre.setText(usuarioLogeado);
+        tvNombre.setText(usuarioLogeado.getAlias());
         ivFotoPerfil.setOnClickListener(this);
         btnVerQR.setOnClickListener(this);
         btnAgregarAmigo.setOnClickListener(this);
@@ -98,8 +102,28 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         ((MainActivity) getActivity()).comprobarAmigos();
         ((MainActivity) getActivity()).callFriends();
 
-
+        cargarFoto();
         return root;
+    }
+
+    private void cargarFoto() {
+        Call<Usuario> call = usuRest.findByAlias(usuarioLogeado.getAlias());
+
+        call.enqueue(new Callback<Usuario>() {
+            @Override
+            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                try {
+                    ivFotoPerfil.setImageBitmap(MyB64.base64ToBitmap(response.body().getFoto()));
+
+                }catch (Exception e){}
+            }
+
+            @Override
+            public void onFailure(Call<Usuario> call, Throwable t) {
+
+            }
+        });
+
     }
 
     @Override
@@ -189,13 +213,29 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     // Obtenemos el bitmap de su almacenamiento externo
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getActivity()).getContentResolver(), contentURI);
                     //setea la imagen en el juego y en el image view
-                    ivFotoPerfil.setImageBitmap(MyB64.comprimirImagen(bitmap,root.getContext()));
+                    ivFotoPerfil.setImageBitmap(MyB64.comprimirImagen(bitmap, root.getContext()));
                     //insert en rest
+                    usuarioLogeado.setFoto(MyB64.bitmapToBase64(MyB64.comprimirImagen(bitmap, root.getContext())));
 
-                    //APIUtils.getUsuService().update(usuarioLogeado,)
+
+                    Call<Usuario> call = usuRest.update(usuarioLogeado.getAlias(), usuarioLogeado);
+
+                    call.enqueue(new Callback<Usuario>() {
+                        @Override
+                        public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Usuario> call, Throwable t) {
+
+                        }
+                    });
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    if (e.getMessage() != null)
+                        Log.e("Foto Galeria", e.getMessage());
+
                     Toast.makeText(getContext(), "¡Fallo Galeria!", Toast.LENGTH_SHORT).show();
                 }
             }
