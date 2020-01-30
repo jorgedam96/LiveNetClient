@@ -17,12 +17,12 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/user_dp"
             android:translationZ="1dp"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:layout_alignParentTop="true"
             android:layout_gravity="center_horizontal"
-            android:layout_marginStart="18.5dp"
-            android:layout_marginTop="7dp"
+            android:layout_marginStart="10.7dp"
+            android:layout_marginTop="3dp"
             android:contentDescription="@null"
             app:civ_border_color="#fff"
             android:background="@drawable/defaultphoto"/>
