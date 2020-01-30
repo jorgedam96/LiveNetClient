@@ -24,6 +24,6 @@
     string in this file.
     -->
     <!-- EMILIOOOOOOOO <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDnLiTNWPxKsNsMnQBCwzn-uVzZgX2JhwY</string>-->
-    <!-- JORGEEEEEEEEE <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyC22yCQINfV8rDM31e0Rtt-BD98WsO1Dy0</string>-->
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCabW4-k0ZH6OT4mrc-jqciypdAfRWy89U</string>
+     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyC22yCQINfV8rDM31e0Rtt-BD98WsO1Dy0</string>
+    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCabW4-k0ZH6OT4mrc-jqciypdAfRWy89U</string>-->
 </resources>
