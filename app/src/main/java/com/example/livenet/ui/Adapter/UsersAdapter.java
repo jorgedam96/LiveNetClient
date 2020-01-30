@@ -55,10 +55,14 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
 
         final FireUser user = list.get(position);
 
-        if(user.getImage().equals("defaultphoto")){
+        try {
+            if (user.getImage().equals("defaultphoto")) {
+                holder.photo.setImageDrawable(context.getDrawable(R.drawable.defaultphoto));
+            } else {
+                holder.photo.setImageBitmap(MyB64.base64ToBitmap(user.getImage()));
+            }
+        }catch(Exception ex){
             holder.photo.setImageDrawable(context.getDrawable(R.drawable.defaultphoto));
-        }else {
-            holder.photo.setImageBitmap(MyB64.base64ToBitmap(user.getImage()));
         }
         holder.nombre.setText(user.getUsername());
         try {

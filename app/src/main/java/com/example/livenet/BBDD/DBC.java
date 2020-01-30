@@ -22,7 +22,8 @@ public class DBC extends SQLiteOpenHelper {
             "    LOGGEDIN DATETIME NOT NULL," +
             "    CADUCIDAD DATETIME NOT NULL);";
 
-    private static final String lnAmigosSql ="CREATE TABLE AMIGOS(\n" +
+    private static final String lnAmigosSql ="CREATE TABLE AMIGOS(" +
+            "\n" +
             "    ALIAS VARCHAR(255) NOT NULL PRIMARY KEY,\n" +
             "    FOTO TEXT NOT NULL," +
             "    TOKEN TEXT NOT NULL);";
