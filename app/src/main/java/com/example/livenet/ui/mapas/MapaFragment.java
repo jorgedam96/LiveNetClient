@@ -24,10 +24,12 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.livenet.BBDD.DBC;
 import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.LocalizacionesRest;
+import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Localizacion;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -74,6 +76,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
     private String aliasLogeado = "";
     private Marker miMarker;
     private ArrayList<Marker> marcadores = new ArrayList<>();
+    private DBC dbc;
 
     @Override
     public void setRetainInstance(boolean retain) {
@@ -297,9 +300,14 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback{
     private void solicitarUbicacionesRest() {
 
         try {
+            dbc = new DBC(getActivity(), "localCfgBD", null, 1);
+            ArrayList<FireUser> fbUser = dbc.seleccionarData();
+            dbc.close();
             List<String> amigos = new ArrayList<>();
-            amigos.add("emilio");
-            amigos.add("jorge");
+
+            for (FireUser f : fbUser){
+              amigos.add(f.getUsername());
+          }
 
             Call<List<Localizacion>> call = locRest.findAllByAmigos(amigos);
             call.enqueue(new Callback<List<Localizacion>>() {
