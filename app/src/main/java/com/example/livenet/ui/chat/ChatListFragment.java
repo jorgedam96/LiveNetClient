@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.livenet.BBDD.DBC;
 import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.model.Chat;
@@ -47,46 +48,52 @@ public class ChatListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.chat_list_fragment, container, false);
-        ((MainActivity)getActivity()).comprobarAmigos();
-        ((MainActivity)getActivity()).callFriends();
+        ((MainActivity) getActivity()).comprobarAmigos();
+        ((MainActivity) getActivity()).callFriends();
 
         recyclerView = view.findViewById(R.id.rvChatsList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
+        mUsers = new ArrayList<>();
         fuser = FirebaseAuth.getInstance().getCurrentUser();
 
         usersList = new ArrayList<>();
 
         reference = FirebaseDatabase.getInstance().getReference("Chats");
-        reference.addValueEventListener(new ValueEventListener() {
+
+        ValueEventListener listado = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                 usersList.clear();
 
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Chat chat = snapshot.getValue(Chat.class);
 
-                    if(chat.getSender().equals(fuser.getUid())){
-                        usersList.add(chat.getReceiver());
+                    if (chat.getSender().equals(fuser.getUid())) {
+                        if(!usersList.contains(chat.getReceiver())) {
+                            usersList.add(chat.getReceiver());
+                        }
 
                     }
-                    if(chat.getReceiver().equals(fuser.getUid())){
-
-                        usersList.add(chat.getSender());
-
+                    if (chat.getReceiver().equals(fuser.getUid())) {
+                        if(!usersList.contains(chat.getSender())) {
+                            usersList.add(chat.getSender());
+                        }
                     }
+
                 }
 
                 readChats();
+
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
-
+        };
+        reference.addValueEventListener(listado);
         return view;
     }
 
@@ -97,46 +104,23 @@ public class ChatListFragment extends Fragment {
         // TODO: Use the ViewModel
     }
 
-    private void readChats(){
-        mUsers = new ArrayList<>();
-
-        reference = FirebaseDatabase.getInstance().getReference("Users");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mUsers.clear();
-                //Mostrar 1 solo usuario por chat
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    FireUser user = snapshot.getValue(FireUser.class);
-
-                    for(String id : usersList){
-                        if (user.getId().equals(id)){
-                            if (mUsers.size() != 0){
-                                for(FireUser user1 : mUsers){
-                                    if(!user.getId().equals(user1.getId())){
-                                        mUsers.add(user);
-                                    }
-                                }
-                            }else{
-                                mUsers.add(user);
-
-                            }
-
-                        }
-
-                    }
-                }
-
-                adapter = new UsersAdapter( mUsers,getContext(), getFragmentManager());
-                recyclerView.setAdapter(adapter);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
+    private void readChats() {
+        mUsers.clear();
+        String[] tokensUser;
+        usersList.toArray(tokensUser = new String[usersList.size()]);
+        DBC dbc = new DBC(getContext(), "localCfgBD", null, 1);
+        for(String token : tokensUser){
+            FireUser user = dbc.selectByToken(token);
+            mUsers.add(user);
+        }
+        adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager());
+        recyclerView.setAdapter(adapter);
     }
 
+
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
+    }
 }

@@ -2,6 +2,9 @@ package com.example.livenet.ui.login;
 
 import android.Manifest;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,11 +37,16 @@ import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.UsuariosRest;
 import com.example.livenet.Utilidades;
+import com.example.livenet.model.FireUser;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -223,7 +231,51 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         auth.signInWithEmailAndPassword(usuario.getCorreo(), usuario.getPasswd()).
                 addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        irApp(usuario);
+
+
+                        String uid = auth.getCurrentUser().getUid();
+
+                        //Buscamos el usuario en Firebase
+                        reference = FirebaseDatabase.getInstance().getReference("Users").child(uid);
+
+                        reference.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                System.out.println(dataSnapshot.getChildrenCount());
+                                FireUser fuser = dataSnapshot.getValue(FireUser.class);
+                                try {
+                                    //Comprobamos que no esté conectado desde otra localizacion
+                                    if (fuser.getStatus().equals("Conectado")) {
+                                        Toast.makeText(getContext(), "El usuario ya está conectado desde otra localizacion", Toast.LENGTH_SHORT).show();
+                                        //Si es asi le mostramos un mensaje de advertencia y no podrá conectarse
+
+                                        reference.removeEventListener(this);
+                                        //Reiniciamos la App para limpiar cualquier residuo en memoria
+                                        Intent mStartActivity = new Intent(getContext(), LoginActivity.class);
+                                        startActivity(mStartActivity);
+                                        getActivity().finish();
+                                    } else {
+                                        //En caso contrario, hara login
+                                        reference.removeEventListener(this);
+                                        irApp(usuario);
+                                    }
+                                }catch(Exception ex){
+                                    reference.removeEventListener(this);
+                                    Toast.makeText(getContext(), "El usuario ya está conectado desde otra localizacion", Toast.LENGTH_SHORT).show();
+                                    //Reiniciamos la App para limpiar cualquier residuo en memoria
+                                    Intent mStartActivity = new Intent(getContext(), LoginActivity.class);
+                                    startActivity(mStartActivity);
+                                    getActivity().finish();
+
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
                     }
                 });
 

@@ -387,6 +387,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                         hashMap.put("id", userid);
                         hashMap.put("username", usuario.getText().toString());
                         hashMap.put("image", "defaultphoto");
+                        hashMap.put("status","Desconectado");
 
 
                         reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {

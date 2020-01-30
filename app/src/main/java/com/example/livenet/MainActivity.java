@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void status(String status){
+    public void status(String status){
         reference = FirebaseDatabase.getInstance().getReference("Users").child(usuario.getUid());
 
         HashMap<String, Object> hashMap = new HashMap<>();

@@ -71,6 +71,30 @@ public class DBC extends SQLiteOpenHelper {
         return amigos;
     }
 
+    public FireUser selectByToken(String token) {
+        SQLiteDatabase bd = this.getReadableDatabase();
+
+        FireUser amigo = new FireUser();
+        //Si hemos abierto correctamente la base de datos
+        if (bd != null) {
+            //Seleccionamos todos
+            Cursor c = bd.rawQuery("SELECT ALIAS, FOTO, TOKEN FROM AMIGOS WHERE TOKEN='"+token+"'", null);
+            //Nos aseguramos de que existe al menos un registro
+            if (c.moveToFirst()) {
+                //Recorremos el cursor hasta que no haya más registros
+                do {
+                    amigo = new FireUser(c.getString(2),c.getString(1),c.getString(0));
+                } while (c.moveToNext());
+            }
+            //Cerramos la base de datos
+            c.close();
+
+
+        }
+        bd.close();
+        return amigo;
+    }
+
     public String getTokenAmigo(String amigo){
 
         SQLiteDatabase bd = this.getReadableDatabase();

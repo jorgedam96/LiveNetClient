@@ -62,7 +62,7 @@ public class UsersAdapter  extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
         try {
             holder.status.setText(user.getStatus());
         }catch(Exception ignored){
-            
+            holder.status.setText("");
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
 

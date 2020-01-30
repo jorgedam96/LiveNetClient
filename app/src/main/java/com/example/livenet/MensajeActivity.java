@@ -108,17 +108,22 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                System.out.println(dataSnapshot.getChildrenCount());
-                FireUser fuser = dataSnapshot.getValue(FireUser.class);
-                receiverid = fuser.getId();
-                if (fuser.getImage().equals("defaultphoto")) {
-                    foto.setImageResource(R.drawable.defaultphoto);
-                } else {
-                    System.out.println("Otra foto rara");
+                try {
+                    System.out.println(dataSnapshot.getChildrenCount());
+                    FireUser fuser = dataSnapshot.getValue(FireUser.class);
+                    receiverid = fuser.getId();
+                    if (fuser.getImage().equals("defaultphoto")) {
+                        foto.setImageResource(R.drawable.defaultphoto);
+                    } else {
+                        System.out.println("Otra foto rara");
+                    }
+
+                    readMensaje(FirebaseAuth.getInstance().getCurrentUser().getUid(), receiverid);
+                }catch(Exception ex){
+
+                    reference.removeEventListener(this);
+
                 }
-
-                readMensaje(FirebaseAuth.getInstance().getCurrentUser().getUid(), receiverid);
-
             }
 
             @Override

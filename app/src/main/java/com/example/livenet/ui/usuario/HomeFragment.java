@@ -102,10 +102,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.btLogout:
                 FirebaseAuth.getInstance().signOut();
+                ((MainActivity)getActivity()).status("Desconectado");
+                getActivity().overridePendingTransition(R.anim.from_left, R.anim.to_right);
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
                 getActivity().finish();
-                getActivity().overridePendingTransition(R.anim.from_left, R.anim.to_right);
+
                 break;
             case R.id.btnAgregarAmigo:
                 abrirCamara();
@@ -118,6 +120,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 break;
 
         }
+    }
+
+    private void reiniciarApp(){
+
     }
 
     private void cambiarFoto() {
