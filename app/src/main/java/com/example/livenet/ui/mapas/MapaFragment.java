@@ -222,7 +222,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                     // Actualizamos la última posición conocida
                     ultima = task.getResult();
                     acercarCamara(ultima);
-                    
+
                 } else {
                     Log.d("GPS", "No se encuetra la última posición.");
                     Log.e("GPS", "Exception: %s", task.getException());
