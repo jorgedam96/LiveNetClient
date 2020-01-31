@@ -88,7 +88,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
     private HashMap<String, Bitmap> marcadoresNombre;
     private int contador = 0;
     private boolean buscarFoto = true;
-
+    private boolean camaraUnaVez = true;
+    private int tiempoTimer = 100;
 
     @Override
     public void setRetainInstance(boolean retain) {
@@ -178,22 +179,24 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onMyLocationChange(Location location) {
                 ultima = location;
-
+                if (camaraUnaVez) {
+                    acercarCamara(location);
+                    camaraUnaVez = false;
+                }
                 // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
-                acercarCamara(location);
+                //acercarCamara(location);
 
                 //ponerMiMarcador(location);
-               /* if (miMarker == null) {
+              /*  if (miMarker == null) {
 
                     miMarker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                            .position(new LatLng(ultima.getLatitude(), ultima.getLongitude()))
+                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(aliasLogeado))))
                             .title("Tú"));
                 } else {
                     animateMarker(location.getLatitude(), location.getLongitude(), miMarker);
                 }
-
-                */
+*/
 
             }
         });
@@ -204,12 +207,10 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         if (miMarker != null) {
             miMarker.remove();
         }
-/*
         miMarker = mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(l.getLatitude(), l.getLongitude()))
-                .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                .position(new LatLng(ultima.getLatitude(), ultima.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(aliasLogeado))))
                 .title("Tú"));
-*/
     }
 
     private void acercarCamara(Location location) {
@@ -256,6 +257,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
 
                                         enviarUbicacion();
                                         solicitarUbicacionesRest();
+                                        acercarCamara(ultima);
+
                                     }
                                 });
 
@@ -267,7 +270,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                     });
                 }
             };
-            timer.schedule(doAsyncTask, 0, 5000);
+            timer.schedule(doAsyncTask, 0, 4000);
         } catch (Exception e) {
             if (e.getMessage() != null)
                 Log.e("timer", e.getMessage());
@@ -313,6 +316,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
             ArrayList<FireUser> fbUser = dbc.seleccionarData();
             dbc.close();
             List<String> amigos = new ArrayList<>();
+            buscarFotoUsuarios(aliasLogeado);
             for (FireUser f : fbUser) {
                 amigos.add(f.getUsername());
                 buscarFotoUsuarios(f.getUsername());
@@ -350,10 +354,13 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
         try {
             mMap.clear();
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(ultima.getLatitude(), ultima.getLongitude()))
+                    .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(aliasLogeado))))
+                    .title("Tú"));
 
             for (int i = 0; i < localizaciones.size(); i++) {
                 if (!localizaciones.get(i).getAlias().equals(aliasLogeado)) {
-
                     mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
                             .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(localizaciones.get(i).getAlias()))))
@@ -378,6 +385,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         if (buscarFoto) {
             try {
                 marcadoresNombre = new HashMap<String, Bitmap>();
+
                 UsuariosRest usuRest = APIUtils.getUsuService();
 
                 Call<Usuario> call = usuRest.findByAlias(alias);
