@@ -1,6 +1,7 @@
 package com.example.livenet.ui.chat;
 
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
@@ -11,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Toast;
 
 import com.example.livenet.BBDD.DBC;
@@ -48,9 +51,18 @@ public class UsersFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
         readUsers();
-
         dbc.close();
         return view;
+    }
+
+    private void runLayoutAnimation(final RecyclerView recyclerView) {
+        final Context context = recyclerView.getContext();
+        final LayoutAnimationController controller =
+                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation);
+
+        recyclerView.setLayoutAnimation(controller);
+
+        recyclerView.scheduleLayoutAnimation();
     }
 
     private void readUsers() {
@@ -64,6 +76,7 @@ public class UsersFragment extends Fragment {
                 getFragmentManager());
 
         recyclerView.setAdapter(adapter);
+        runLayoutAnimation(recyclerView);
     }
 
 

@@ -1,42 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:background="@android:color/white"
     android:layout_margin="5dp"
-    >
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:padding="10dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/UsersPhoto"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/defaultphoto"
-        android:id="@+id/UsersPhoto"
-        />
+        android:src="@drawable/defaultphoto" />
+
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/UsersPhoto"
+        android:layout_height="50dp"
         android:layout_toEndOf="@id/UsersPhoto"
-        android:paddingLeft="15dp"
-        android:orientation="vertical">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/UsersName"
+        android:layout_toRightOf="@id/UsersPhoto"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="15dp">
 
-        android:text="Username"
-        android:layout_marginStart="10dp"
-        android:textSize="18sp"/>
         <TextView
+            android:id="@+id/UsersName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/UsersStatus"
 
-            android:text="Desconectado"
             android:layout_marginStart="10dp"
-            android:textSize="12sp"/>
+            android:text="Username"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/UsersStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="10dp"
+            android:text="Desconectado"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <ImageButton

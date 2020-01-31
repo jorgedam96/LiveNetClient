@@ -168,6 +168,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                         fragmentManager.popBackStackImmediate();
                         mainActivity.actualizarListaAmigos();
                         fragmentManager.beginTransaction().remove(fragmentManager.findFragmentById(R.id.nav_host_fragment)).remove(fragmentManager.findFragmentById(R.id.nav_chat_fragment)).replace(R.id.nav_host_fragment, new ChatFragment("usuarios")).commit();
+                        Toast.makeText(context, "Borrando a " + amigo+" , puede tardar unos segundos", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(context, "Algo salio mal" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                     }

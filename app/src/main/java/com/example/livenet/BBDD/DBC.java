@@ -121,6 +121,31 @@ public class DBC extends SQLiteOpenHelper {
         return token;
     }
 
+    public String getFotoAmigo(String amigo){
+
+        SQLiteDatabase bd = this.getReadableDatabase();
+
+        String foto = "";
+        //Si hemos abierto correctamente la base de datos
+        if (bd != null) {
+            //Seleccionamos todos
+            Cursor c = bd.rawQuery("SELECT FOTO FROM AMIGOS WHERE ALIAS='"+amigo+"'", null);
+            //Nos aseguramos de que existe al menos un registro
+            if (c.moveToFirst()) {
+                //Recorremos el cursor hasta que no haya más registros
+                do {
+                    foto = c.getString(0);
+                } while (c.moveToNext());
+            }
+            //Cerramos la base de datos
+            c.close();
+
+
+        }
+        bd.close();
+        return foto;
+    }
+
     public void delete(String alias){
         SQLiteDatabase bd = this.getWritableDatabase();
 

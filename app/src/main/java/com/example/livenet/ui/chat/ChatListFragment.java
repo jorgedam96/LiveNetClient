@@ -2,6 +2,7 @@ package com.example.livenet.ui.chat;
 
 import androidx.lifecycle.ViewModelProviders;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 
 import com.example.livenet.BBDD.DBC;
 import com.example.livenet.MainActivity;
@@ -54,10 +57,19 @@ public class ChatListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
         usersList = new ArrayList<>();
-
         listenerChat();
 
         return root;
+    }
+
+    private void runLayoutAnimation(final RecyclerView recyclerView) {
+        final Context context = recyclerView.getContext();
+        final LayoutAnimationController controller =
+                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation);
+
+        recyclerView.setLayoutAnimation(controller);
+
+        recyclerView.scheduleLayoutAnimation();
     }
 
     @Override
@@ -133,6 +145,7 @@ public class ChatListFragment extends Fragment {
                     ((MainActivity) getActivity()).getLogged().getAlias(),
                     getFragmentManager());
             recyclerView.setAdapter(adapter);
+            runLayoutAnimation(recyclerView);
         } catch (Exception e) {
             if (e.getMessage() != null) {
                 System.out.println(" read chats: " + e.getMessage());

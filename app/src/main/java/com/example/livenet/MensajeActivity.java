@@ -49,10 +49,8 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
     String localuserid;
     DatabaseReference reference;
     TextView username;
-    ArrayList<String[]> remota;
     private DBC dbc;
     String usern;
-    Intent intent;
     String receiverid;
 
     RecyclerView recyclerView;
@@ -87,7 +85,9 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         intent = getIntent();
         usern = intent.getStringExtra("username");
         username.setText(usern);
-
+        DBC dbc = new DBC(getApplicationContext(),"localCfgBD", null , 1);
+        foto.setImageBitmap(MyB64.base64ToBitmap(dbc.getFotoAmigo(usern)));
+        dbc.close();
         rellenarChat();
 
         text_send = findViewById(R.id.tvMensajeEnviado);
