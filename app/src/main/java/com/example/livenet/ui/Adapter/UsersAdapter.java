@@ -15,7 +15,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.livenet.BBDD.DBC;
@@ -27,6 +29,8 @@ import com.example.livenet.REST.AmigosRest;
 import com.example.livenet.model.FireUser;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
+import com.example.livenet.ui.chat.ChatFragment;
+import com.example.livenet.ui.chat.UsersFragment;
 import com.example.livenet.util.MyB64;
 
 import org.w3c.dom.Text;
@@ -48,15 +52,17 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     private String localuserid;
     private String localusername;
     private AmigosRest amigosRest;
+    private FragmentManager fragmentManager;
     private boolean usuarios;
 
-    public UsersAdapter(ArrayList<FireUser> list, Context context, MainActivity mainActivity, String localuserid, boolean usuarios, String localusername) {
+    public UsersAdapter(ArrayList<FireUser> list, Context context, MainActivity mainActivity, String localuserid, boolean usuarios, String localusername, FragmentManager fragmentManager) {
         this.list = list;
         this.context = context;
         this.mainActivity = mainActivity;
         this.localuserid = localuserid;
         this.amigosRest = APIUtils.getAmigosService();
         this.usuarios = usuarios;
+        this.fragmentManager = fragmentManager;
         this.localusername = localusername;
     }
 
@@ -127,6 +133,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,
                                         int which) {
+                        removeItem(position);
                         borrarAmigo(localusername, nombre, position);
 
                     }
@@ -158,8 +165,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                         DBC dbc = new DBC(context,"localCfgBD", null, 1);
                         dbc.delete(amigo);
                         dbc.close();
-                        removeItem(position);
+                        fragmentManager.popBackStackImmediate();
                         mainActivity.actualizarListaAmigos();
+                        fragmentManager.beginTransaction().remove(fragmentManager.findFragmentById(R.id.nav_host_fragment)).remove(fragmentManager.findFragmentById(R.id.nav_chat_fragment)).replace(R.id.nav_host_fragment, new ChatFragment("usuarios")).commit();
                     } else {
                         Toast.makeText(context, "Algo salio mal" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                     }

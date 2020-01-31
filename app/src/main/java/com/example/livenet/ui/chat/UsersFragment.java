@@ -60,7 +60,8 @@ public class UsersFragment extends Fragment {
                 (MainActivity)getActivity(),
                 FirebaseAuth.getInstance().getCurrentUser().getUid(),
                 true,
-                ((MainActivity)getActivity()).getLogged().getAlias());
+                ((MainActivity)getActivity()).getLogged().getAlias(),
+                getFragmentManager());
 
         recyclerView.setAdapter(adapter);
     }

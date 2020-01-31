@@ -3,7 +3,6 @@ package com.example.livenet.ui.mapas;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -39,10 +38,7 @@ import com.example.livenet.model.Usuario;
 import com.example.livenet.util.MyB64;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,10 +48,11 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,9 +66,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MapaFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener{
+public class MapaFragment extends Fragment implements OnMapReadyCallback {
 
 
     private View root;
@@ -95,15 +90,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private boolean buscarFoto = true;
 
 
-
-    //Localizacion con proveedor
-    private static final int LOCATION_REQUEST_CODE = 1; // Para los permisos
-    private FusedLocationProviderClient mPosicion;
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
-    private static final int  CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000 ;
-
-
     @Override
     public void setRetainInstance(boolean retain) {
         super.setRetainInstance(retain);
@@ -115,7 +101,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         handler = new Handler();
         aliasLogeado = ((MainActivity) getActivity()).getLogged().getAlias();
         marcadoresNombre = new HashMap<String, Bitmap>();
-        mPosicion = LocationServices.getFusedLocationProviderClient(getActivity());
     }
 
     @Override
@@ -151,6 +136,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         });
     }
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -158,106 +144,72 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                mMap.setMyLocationEnabled(false);
+
+
+                listenerLocalizacion();
+                listenerBotonLocGoogle();
+
+                mMap.setMyLocationEnabled(true);
                 configurarIUMapa();
 
+                //marcardorConCara();
                 activarHiloUbicacionesRest();
 
             }
         });
 
-        autoActualizador();
-
-
-        mGoogleApiClient = new GoogleApiClient.Builder(root.getContext())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
-        // Crear el LocationRequest
-        // Es muy similar a lo que yo he hecho manualmente con el reloj en     private void autoActualizador {
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)        // 10 segundos en milisegundos
-                .setFastestInterval(1 * 1000); // 1 segundo en milisegundos
-
 
     }
 
-    private void autoActualizador() {
-        final Handler handler = new Handler();
-        Timer timer = new Timer();
-        TimerTask doAsyncTask = new TimerTask() {
+
+    private void listenerBotonLocGoogle() {
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            // Obtenemos la posición
-                            obtenerPosicion();
-
-
-                        } catch (Exception e) {
-                            Log.e("TIMER", "Error: "+e.getMessage());
-                        }
-                    }
-                });
-            }
-
-
-        };
-        // Actualizamos cada 10 segundos
-        // podemos pararlo con timer.cancel();
-        timer.schedule(doAsyncTask, 0, 10000);
-    }
-
-    public void obtenerPosicion(){
-        Task<Location> local = mPosicion.getLastLocation();
-        local.addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    // Actualizamos la última posición conocida
-                    ultima = task.getResult();
-                    acercarCamara(ultima);
-
-                } else {
-                    Log.d("GPS", "No se encuetra la última posición.");
-                    Log.e("GPS", "Exception: %s", task.getException());
-                }
+            public boolean onMyLocationButtonClick() {
+                acercarZoom = true;
+                acercarCamara(ultima);
+                return false;
             }
         });
     }
 
-    public static void animateMarker(double lat, double lon, final Marker marker) {
-        if (marker != null) {
-            final LatLng startPosition = marker.getPosition();
-            final LatLng endPosition = new LatLng(lat, lon);
+    private void listenerLocalizacion() {
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                ultima = location;
 
-            //final float startRotation = marker.getRotation();
+                // Toast.makeText(root.getContext(), location.toString(), Toast.LENGTH_SHORT).show();
+                acercarCamara(location);
 
-            final LatLngInterpolator latLngInterpolator = new LatLngInterpolator.LinearFixed();
-            ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
-            valueAnimator.setDuration(600); // duration 1 second
-            valueAnimator.setInterpolator(new LinearInterpolator());
-            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    try {
-                        float v = animation.getAnimatedFraction();
-                        LatLng newPosition = latLngInterpolator.interpolate(v, startPosition, endPosition);
-                        marker.setPosition(newPosition);
-                        //marker.setRotation(computeRotation(v, startRotation, destination.getBearing()));
-                    } catch (Exception ex) {
-                        // I don't care atm..
-                    }
+                //ponerMiMarcador(location);
+               /* if (miMarker == null) {
+
+                    miMarker = mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                            .title("Tú"));
+                } else {
+                    animateMarker(location.getLatitude(), location.getLongitude(), miMarker);
                 }
-            });
 
-            valueAnimator.start();
+                */
+
+            }
+        });
+
+    }
+
+    private void ponerMiMarcador(Location l) {
+        if (miMarker != null) {
+            miMarker.remove();
         }
+/*
+        miMarker = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(l.getLatitude(), l.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), R.drawable.defaultphoto)))
+                .title("Tú"));
+*/
     }
 
     private void acercarCamara(Location location) {
@@ -273,7 +225,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private void configurarIUMapa() {
 
         //mMap.setOnMarkerClickListener(this);
+        mMap.setMyLocationEnabled(true);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
 
         //mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(root.getContext(), R.raw.estilo_mapa));
 
@@ -287,6 +241,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     private void activarHiloUbicacionesRest() {
         try {
+
             timer = new Timer();
             TimerTask doAsyncTask = new TimerTask() {
                 @Override
@@ -298,6 +253,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                                 Objects.requireNonNull(getActivity()).runOnUiThread(runnable = new Runnable() {
                                     @Override
                                     public void run() {
+
                                         enviarUbicacion();
                                         solicitarUbicacionesRest();
                                     }
@@ -322,6 +278,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private void enviarUbicacion() {
         if (anterior != ultima) {
             try {
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                FirebaseUser user = auth.getCurrentUser();
+
                 Call<Localizacion> call = locRest.create(new Localizacion(
                         ((MainActivity) getActivity()).getLogged().getAlias(),
                         ultima.getLatitude(),
@@ -338,6 +297,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                     @Override
                     public void onFailure(Call<Localizacion> call, Throwable t) {
                         Log.e("enviarUbicacion", t.toString());
+
                     }
                 });
             } catch (Exception e) {
@@ -358,6 +318,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                 buscarFotoUsuarios(f.getUsername());
             }
             buscarFoto = false;
+
 
             Call<List<Localizacion>> call = locRest.findAllByAmigos(amigos);
             call.enqueue(new Callback<List<Localizacion>>() {
@@ -389,18 +350,10 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
         try {
             mMap.clear();
-            miMarker = mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(ultima.getLatitude(), ultima.getLongitude()))
-                    .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), BitmapFactory.decodeResource(root.getContext().getResources(),R.drawable.defaultphoto))))
-                    .title("Tú"));
-            for (int i = 0; i < localizaciones.size(); i++) {
-                if (localizaciones.get(i).getAlias().equals(aliasLogeado)) {
-                    Location userloc = new Location("");
-                    userloc.setLatitude(localizaciones.get(i).getLatitud());
-                    userloc.setLongitude(localizaciones.get(i).getLongitud());
 
-                    acercarCamara(userloc);
-                }
+            for (int i = 0; i < localizaciones.size(); i++) {
+                if (!localizaciones.get(i).getAlias().equals(aliasLogeado)) {
+
                     mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
                             .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(localizaciones.get(i).getAlias()))))
@@ -411,7 +364,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                             .radius(localizaciones.get(i).getAccuracy())
                             .fillColor(Color.argb(60, 150, 226, 255))
                             .strokeColor(Color.argb(100, 150, 226, 255)));
-
+                }
             }
 
 
@@ -424,7 +377,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private void buscarFotoUsuarios(String alias) {
         if (buscarFoto) {
             try {
-                marcadoresNombre = new HashMap<>();
+                marcadoresNombre = new HashMap<String, Bitmap>();
                 UsuariosRest usuRest = APIUtils.getUsuService();
 
                 Call<Usuario> call = usuRest.findByAlias(alias);
@@ -488,62 +441,34 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         super.onDestroy();
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (location == null) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    public static void animateMarker(double lat, double lon, final Marker marker) {
+        if (marker != null) {
+            final LatLng startPosition = marker.getPosition();
+            final LatLng endPosition = new LatLng(lat, lon);
+
+            //final float startRotation = marker.getRotation();
+
+            final LatLngInterpolator latLngInterpolator = new LatLngInterpolator.LinearFixed();
+            ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+            valueAnimator.setDuration(600); // duration 1 second
+            valueAnimator.setInterpolator(new LinearInterpolator());
+            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    try {
+                        float v = animation.getAnimatedFraction();
+                        LatLng newPosition = latLngInterpolator.interpolate(v, startPosition, endPosition);
+                        marker.setPosition(newPosition);
+                        //marker.setRotation(computeRotation(v, startRotation, destination.getBearing()));
+                    } catch (Exception ex) {
+                        // I don't care atm..
+                    }
+                }
+            });
+
+            valueAnimator.start();
         }
-        else {
-            handleNewLocation(location);
-        }
     }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        if (connectionResult.hasResolution()) {
-            try {
-                // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(getActivity(), CONNECTION_FAILURE_RESOLUTION_REQUEST);
-                /*
-                 * Thrown if Google Play services canceled the original
-                 * PendingIntent
-                 */
-            } catch (IntentSender.SendIntentException e) {
-                // Log the error
-                e.printStackTrace();
-            }
-        } else {
-            /*
-             * If no resolution is available, display a dialog to the
-             * user with the error.
-             */
-            Log.i("Mapa", "Location services connection failed with code " + connectionResult.getErrorCode());
-        }
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        handleNewLocation(location);
-    }
-    private void handleNewLocation(Location location) {
-        Log.d("Mapa", location.toString());
-        ultima = location;
-        acercarCamara(ultima);
-    }
-
-
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        return false;
-    }
-
 
     private interface LatLngInterpolator {
         LatLng interpolate(float fraction, LatLng a, LatLng b);

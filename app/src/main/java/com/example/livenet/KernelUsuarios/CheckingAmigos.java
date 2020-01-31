@@ -61,7 +61,6 @@ public class CheckingAmigos {
                         @Override
                         public void run() {
                             try {
-                                Toast.makeText(context,"Lista de amigos actualizada", Toast.LENGTH_SHORT).show();
                                 comprobarAmigos();
                                 callFriends();
                             }catch(Exception ex){
@@ -71,7 +70,7 @@ public class CheckingAmigos {
                     });
                 }
             };
-            timer.schedule(doAsyncTask, 0, 60000);
+            timer.schedule(doAsyncTask, 0, 5000);
         } catch (Exception e) {
             if (e.getMessage() != null)
                 Log.e("timer", e.getMessage());

@@ -130,7 +130,8 @@ public class ChatListFragment extends Fragment {
                     (MainActivity)getActivity(),
                     FirebaseAuth.getInstance().getCurrentUser().getUid(),
                     false,
-                    ((MainActivity) getActivity()).getLogged().getAlias());
+                    ((MainActivity) getActivity()).getLogged().getAlias(),
+                    getFragmentManager());
             recyclerView.setAdapter(adapter);
         } catch (Exception e) {
             if (e.getMessage() != null) {

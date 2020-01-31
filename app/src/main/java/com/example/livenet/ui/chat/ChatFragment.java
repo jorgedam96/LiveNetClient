@@ -24,6 +24,16 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private ChatListFragment chatslist;
     private UsersFragment userslist;
     private ImageButton chats, userlist;
+    private String param;
+
+    public ChatFragment(){
+
+    }
+
+
+    public ChatFragment(String param){
+        this.param = param;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -38,7 +48,9 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
         //getFragmentManager().beginTransaction().add(R.id.nav_host_fragment, new UsersFragment()).addToBackStack(null).commit();
 
-
+        if(param != null){
+            fragmentListaUsuarios();
+        }
         return root;
     }
 
@@ -47,26 +59,36 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.chatIBMessages:
-                chatslist = new ChatListFragment();
-                getFragmentManager().beginTransaction().setCustomAnimations(R.anim.from_left,R.anim.to_right, R.anim.from_right,R.anim.to_left)
-                        .replace(R.id.nav_chat_fragment, chatslist).commit();
-                chats.setImageDrawable(getContext().getDrawable(R.drawable.ic_message_blue_pulsed));
-                userlist.setImageDrawable(getContext().getDrawable(R.drawable.ic_group_black_24dp));
-                if(userslist != null){
-                    getFragmentManager().beginTransaction().remove(userslist).commit();
-                }
+                fragmentListaChat();
                 break;
             case R.id.chatIBUsers:
-                userslist = new UsersFragment();
-                getFragmentManager().beginTransaction().setCustomAnimations(R.anim.from_right,R.anim.to_left, R.anim.from_left,R.anim.to_right)
-                        .replace(R.id.nav_chat_fragment, userslist).commit();
-                chats.setImageDrawable(getContext().getDrawable(R.drawable.ic_message_black_24dp));
-                userlist.setImageDrawable(getContext().getDrawable(R.drawable.ic_group_blue_pulsed));
-                if(chatslist != null){
-                    getFragmentManager().beginTransaction().remove(chatslist).commit();
-                }
+                fragmentListaUsuarios();
                 break;
 
         }
+    }
+
+    private void fragmentListaChat() {
+        if(userslist != null){
+            getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.nav_chat_fragment)).commit();
+        }
+        chatslist = new ChatListFragment();
+        getFragmentManager().beginTransaction().setCustomAnimations(R.anim.from_left,R.anim.to_right, R.anim.from_right,R.anim.to_left)
+                .replace(R.id.nav_chat_fragment, chatslist).commit();
+        chats.setImageDrawable(getContext().getDrawable(R.drawable.ic_message_blue_pulsed));
+        userlist.setImageDrawable(getContext().getDrawable(R.drawable.ic_group_black_24dp));
+
+    }
+
+    private void fragmentListaUsuarios() {
+        userslist = new UsersFragment();
+        if(chatslist != null){
+            getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.nav_chat_fragment)).commit();
+        }
+        getFragmentManager().beginTransaction().setCustomAnimations(R.anim.from_right,R.anim.to_left, R.anim.from_left,R.anim.to_right)
+                .replace(R.id.nav_chat_fragment, userslist).commit();
+        chats.setImageDrawable(getContext().getDrawable(R.drawable.ic_message_black_24dp));
+        userlist.setImageDrawable(getContext().getDrawable(R.drawable.ic_group_blue_pulsed));
+
     }
 }
