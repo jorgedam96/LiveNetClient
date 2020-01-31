@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.livenet.BBDD.DBC;
+import com.example.livenet.MainActivity;
 import com.example.livenet.MensajeActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
@@ -43,16 +44,16 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
     private ArrayList<FireUser> list;
     private Context context;
-    private FragmentManager fragmentManager;
+    private MainActivity mainActivity;
     private String localuserid;
     private String localusername;
     private AmigosRest amigosRest;
     private boolean usuarios;
 
-    public UsersAdapter(ArrayList<FireUser> list, Context context, FragmentManager fragmentManager, String localuserid, boolean usuarios, String localusername) {
+    public UsersAdapter(ArrayList<FireUser> list, Context context, MainActivity mainActivity, String localuserid, boolean usuarios, String localusername) {
         this.list = list;
         this.context = context;
-        this.fragmentManager = fragmentManager;
+        this.mainActivity = mainActivity;
         this.localuserid = localuserid;
         this.amigosRest = APIUtils.getAmigosService();
         this.usuarios = usuarios;
@@ -158,6 +159,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                         dbc.delete(amigo);
                         dbc.close();
                         removeItem(position);
+                        mainActivity.actualizarListaAmigos();
                     } else {
                         Toast.makeText(context, "Algo salio mal" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                     }

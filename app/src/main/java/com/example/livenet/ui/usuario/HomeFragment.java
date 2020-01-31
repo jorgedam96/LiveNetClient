@@ -30,17 +30,13 @@ import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
-import com.example.livenet.REST.LocalizacionesRest;
 import com.example.livenet.REST.UsuariosRest;
-import com.example.livenet.model.Localizacion;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.util.MyB64;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.IOException;
@@ -50,7 +46,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
 
@@ -98,11 +93,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         btnVerQR.setOnClickListener(this);
         btnAgregarAmigo.setOnClickListener(this);
 
-
-        ((MainActivity) getActivity()).comprobarAmigos();
-        ((MainActivity) getActivity()).callFriends();
-
-
         cargarFoto();
         return root;
     }
@@ -144,7 +134,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btLogout:
-                ((MainActivity) getActivity()).status("Desconectado");
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
                 getActivity().finish();

@@ -47,12 +47,6 @@ public class UsersFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
-
-
-
-
-        ((MainActivity)getActivity()).comprobarAmigos();
-        ((MainActivity)getActivity()).callFriends();
         readUsers();
 
         dbc.close();
@@ -62,7 +56,12 @@ public class UsersFragment extends Fragment {
     private void readUsers() {
         dbc = new DBC(getActivity(), "localCfgBD", null, 1);
         mUsers = dbc.seleccionarData();
-        adapter = new UsersAdapter(mUsers, getContext(), getFragmentManager(), FirebaseAuth.getInstance().getCurrentUser().getUid(),true,  ((MainActivity)getActivity()).getLogged().getAlias());
+        adapter = new UsersAdapter(mUsers, getContext(),
+                (MainActivity)getActivity(),
+                FirebaseAuth.getInstance().getCurrentUser().getUid(),
+                true,
+                ((MainActivity)getActivity()).getLogged().getAlias());
+
         recyclerView.setAdapter(adapter);
     }
 

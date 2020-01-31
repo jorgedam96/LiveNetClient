@@ -2,9 +2,6 @@ package com.example.livenet.ui.login;
 
 import android.Manifest;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -31,22 +28,16 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.livenet.KernelUsuarios.FireBaseMain;
 import com.example.livenet.LoginActivity;
 import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.UsuariosRest;
 import com.example.livenet.Utilidades;
-import com.example.livenet.model.FireUser;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -72,16 +63,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
     private UsuariosRest usuariosRest;
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     private String fotoUsuario;
-    //Chat
-    private FirebaseAuth auth;
-    private DatabaseReference reference;
-    private FirebaseUser firebaseUser;
 
     //Loading
     private RelativeLayout loadingLayout;
     private ImageView ivLoading;
     private TextView tvLoading;
     private Animation rotation, intermitente;
+
 
 
     public static LoginFragment newInstance() {
@@ -96,10 +84,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
         checkAndRequestPermissions();
 
         root = inflater.inflate(R.layout.login_fragment, container, false);
-
         asignarElementosLayout();
         asignarListenerBotones();
-        auth = FirebaseAuth.getInstance();
+
 
         if (Utilidades.hayConexion(getActivity())) {
             usuariosRest = APIUtils.getUsuService();
@@ -189,11 +176,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
                         //hay respuesta
 
                         if (response.code() == 200) {
-                            //codigo correcto
+                            //codigo correcto -> Logeamos en firebase -> Vamos a la App
                             Toast.makeText(root.getContext(), "Login correcto", Toast.LENGTH_SHORT).show();
                             Usuario usr = response.body();
                             usr.setPasswd(passStr);
-                            loginFirebase(usr);
+                            loginFireBase(usr);
 
 
                         } else if (response.code() == 204) {
@@ -202,9 +189,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
                             loadingLayout.setVisibility(View.INVISIBLE);
                         }
                     }
-
                 }
-
 
                 @Override
                 public void onFailure(Call<Usuario> call, Throwable t) {
@@ -220,69 +205,28 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
         }
     }
 
+    public void loginFireBase(Usuario usr){
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(usr.getCorreo(), usr.getPasswd()).
+                addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        usr.setToken(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        irApp(usr);
+                    }
+                });
+    }
+
     private void irApp(Usuario user) {
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
 
         Intent intent = new Intent((LoginActivity) getActivity(), MainActivity.class);
         Bundle datos = new Bundle();
 
         datos.putString("alias", user.getAlias());
         datos.putString("correo", user.getCorreo());
-        //no poner foto real que revienta
-        datos.putString("foto", "defaultphoto");
-        fotoUsuario=user.getFoto();
+        datos.putString("token", user.getToken());
         intent.putExtras(datos);
         startActivity(intent);
         getActivity().finish();
-
-    }
-
-
-    //Login en firebase con los datos del usuario
-    private void loginFirebase(Usuario usuario) {
-        auth.signInWithEmailAndPassword(usuario.getCorreo(), usuario.getPasswd()).
-                addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-
-
-                        String uid = auth.getCurrentUser().getUid();
-
-                        //Buscamos el usuario en Firebase
-                        reference = FirebaseDatabase.getInstance().getReference("Users").child(uid);
-
-                        reference.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                System.out.println(dataSnapshot.getChildrenCount());
-                                FireUser fuser = dataSnapshot.getValue(FireUser.class);
-                                try {
-                                    //Comprobamos que no esté conectado desde otra localizacion
-
-                                    irApp(usuario);
-
-                                } catch (Exception ex) {
-                                    try {
-                                        reference.removeEventListener(this);
-                                        //Reiniciamos la App para limpiar cualquier residuo en memoria
-                                        Intent mStartActivity = new Intent(root.getContext(), LoginActivity.class);
-                                        startActivity(mStartActivity);
-                                        getActivity().finish();
-                                    } catch (Exception e) {
-                                        if (e.getMessage() != null) {
-                                            Log.e("loginFirebase", e.getMessage());
-                                        }
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-                    }
-                });
 
     }
 
