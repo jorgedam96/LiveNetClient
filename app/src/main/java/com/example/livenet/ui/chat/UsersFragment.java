@@ -37,22 +37,21 @@ public class UsersFragment extends Fragment {
     private RecyclerView recyclerView;
     private UsersAdapter adapter;
     private ArrayList<FireUser> mUsers;
-    private ArrayList<String[]> remota;
     private DBC dbc;
-    private AmigosRest amigosRest;
+    private View root;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_users, container, false);
-        recyclerView = view.findViewById(R.id.UsersRecycler);
+        root = inflater.inflate(R.layout.fragment_users, container, false);
+        recyclerView = root.findViewById(R.id.UsersRecycler);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
         readUsers();
         dbc.close();
-        return view;
+        return root;
     }
 
     private void runLayoutAnimation(final RecyclerView recyclerView) {
@@ -68,7 +67,7 @@ public class UsersFragment extends Fragment {
     private void readUsers() {
         dbc = new DBC(getActivity(), "localCfgBD", null, 1);
         mUsers = dbc.seleccionarData();
-        adapter = new UsersAdapter(mUsers, getContext(),
+        adapter = new UsersAdapter(mUsers, root.getContext(),
                 (MainActivity)getActivity(),
                 FirebaseAuth.getInstance().getCurrentUser().getUid(),
                 true,

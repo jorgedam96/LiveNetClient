@@ -125,7 +125,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     }
 
     private void alertDialog(final String nombre, int position) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context,R.style.AlertDialogStyle);
         dialog.setMessage("Accion irreversible: ¿Quiere borrar a " + nombre + " de tu lista de amigos?");
         dialog.setTitle("Alerta");
 
@@ -145,6 +145,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
             }
         });
+
+
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
     }
@@ -161,7 +163,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
                     if (response.code() == 200) {
-                        Toast.makeText(context, "Se ha borrado a: " + amigo, Toast.LENGTH_SHORT).show();
                         DBC dbc = new DBC(context,"localCfgBD", null, 1);
                         dbc.delete(amigo);
                         dbc.close();
