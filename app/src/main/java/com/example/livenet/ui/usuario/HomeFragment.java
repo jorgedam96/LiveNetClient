@@ -130,14 +130,38 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    private void alertDialog() {
+        androidx.appcompat.app.AlertDialog.Builder dialog = new androidx.appcompat.app.AlertDialog.Builder(root.getContext(),R.style.AlertDialogStyle);
+        dialog.setMessage("Quieres cerrar sesion?");
+        dialog.setTitle("Informacion");
+
+        dialog.setPositiveButton("Confirmar",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,
+                                        int which) {
+                        Intent intent = new Intent(getActivity(), LoginActivity.class);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }
+                });
+
+        dialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+
+        androidx.appcompat.app.AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btLogout:
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                startActivity(intent);
-                getActivity().finish();
-
+                    alertDialog();
                 break;
             case R.id.btnAgregarAmigo:
                 abrirCamara();
