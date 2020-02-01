@@ -535,27 +535,19 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                 if (voz != null) {
                     try {
 
-
                         for (Localizacion l : listaLocs) {
                             if (l.getAlias() != null) {
                                 acercarZoom = false;
                                 if (voz.toString().toLowerCase().contains(l.getAlias())) {
-                                    textToSpeech.setLanguage(Locale.getDefault());
-                                    textToSpeech.speak("acercando cámara a " + l.getAlias(), TextToSpeech.QUEUE_FLUSH, null);
-                                    cam = CameraUpdateFactory.newLatLngZoom(
-                                            new LatLng(l.getLatitud(), l.getLongitud()), 19);
-                                    mMap.animateCamera(cam);
-                                    acercarZoom = true;
+                                    contestaspeech(l,l.getAlias());
                                 }else if (voz.toString().toLowerCase().contains(aliasLogeado)||voz.toString().toLowerCase().contains("estoy")){
-                                    textToSpeech.setLanguage(Locale.getDefault());
-                                    textToSpeech.speak("acercando cámara a " + aliasLogeado, TextToSpeech.QUEUE_FLUSH, null);
-                                    cam = CameraUpdateFactory.newLatLngZoom(
-                                            new LatLng(ultima.getLatitude(),ultima.getLongitude()), 19);
-                                    mMap.animateCamera(cam);
-                                    acercarZoom = true;
+                                    contestaspeech(l,aliasLogeado);
+                                }else if(voz.toString().toLowerCase().contains("1 + 1")){
+
                                 }
                             }
                         }
+
                     } catch (Exception e) {
                         Log.e("lista locss", "Listaloccsss" + e.getMessage());
                     }
@@ -565,6 +557,13 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         }
         acercarZoom = true;
 
+    }
+
+    private void contestaspeech(Localizacion l,String alias) {
+        textToSpeech.speak("acercando cámara a " + alias, TextToSpeech.QUEUE_FLUSH, null);
+        cam = CameraUpdateFactory.newLatLngZoom(
+                new LatLng(l.getLatitud(), l.getLongitud()), 20);
+        mMap.animateCamera(cam);
     }
 
 
