@@ -54,9 +54,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -102,6 +105,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         handler = new Handler();
         aliasLogeado = ((MainActivity) getActivity()).getLogged().getAlias();
         marcadoresNombre = new HashMap<String, Bitmap>();
+
     }
 
     @Override
@@ -158,8 +162,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
 
             }
         });
-
-
     }
 
 
@@ -292,11 +294,15 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                 FirebaseAuth auth = FirebaseAuth.getInstance();
                 FirebaseUser user = auth.getCurrentUser();
 
+                String fechaStr = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault()).format(System.currentTimeMillis());
                 Call<Localizacion> call = locRest.create(new Localizacion(
                         ((MainActivity) getActivity()).getLogged().getAlias(),
                         ultima.getLatitude(),
                         ultima.getLongitude(),
-                        new java.util.Date(), ultima.getAccuracy()));
+                        fechaStr,
+                        ultima.getAccuracy()));
+                Log.i("fecha", fechaStr);
+
 
                 call.enqueue(new Callback<Localizacion>() {
                     @Override
@@ -372,8 +378,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                     mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
                             .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(localizaciones.get(i).getAlias()))))
-                            .title(localizaciones.get(i).getAlias()));
-
+                            .title(localizaciones.get(i).getAlias())
+                            .snippet(localizaciones.get(i).getFecha_hora()));
+                    Log.e("fecha", "fecha: " + localizaciones.get(i).getFecha_hora());
                     mMap.addCircle(new CircleOptions()
                             .center(new LatLng(localizaciones.get(i).getLatitud(), localizaciones.get(i).getLongitud()))
                             .radius(localizaciones.get(i).getAccuracy())
