@@ -40,6 +40,8 @@ import com.example.livenet.model.Usuario;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +71,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
     private ImageView ivLoading;
     private TextView tvLoading;
     private Animation rotation, intermitente;
-
 
 
     public static LoginFragment newInstance() {
@@ -159,13 +160,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
         intermitente = AnimationUtils.loadAnimation(getContext(), R.anim.intermitente);
         tvLoading.startAnimation(intermitente);
 
-
-        //valores de los edit text
-        String usrStr = usuario.getText().toString();
-        String passStr = pass.getText().toString();
-        //consulta si existe
-
         try {
+            //valores de los edit text
+            String usrStr = usuario.getText().toString();
+            String passStr = pass.getText().toString();
+
+            MessageDigest digest = null;
+            digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(pass.getText().toString().getBytes(StandardCharsets.UTF_8));
+            //consulta si existe
 
 
             Call<Usuario> call = usuariosRest.login(new LoginBody(usrStr, passStr));
@@ -205,7 +208,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
         }
     }
 
-    public void loginFireBase(Usuario usr){
+    public void loginFireBase(Usuario usr) {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(usr.getCorreo(), usr.getPasswd()).
                 addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

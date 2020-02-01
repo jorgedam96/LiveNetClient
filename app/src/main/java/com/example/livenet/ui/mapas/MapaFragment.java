@@ -531,35 +531,30 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         if (requestCode == REQUEST_CODE_RECONOCIMIENTO) {
             if (resultCode == RESULT_OK && data != null) {
                 ArrayList<String> voz = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                //según la primera ocurrencia de cada palabra llama a rellenarjuegos() con un where
                 if (voz != null) {
                     try {
-
                         for (Localizacion l : listaLocs) {
                             if (l.getAlias() != null) {
                                 acercarZoom = false;
                                 if (voz.toString().toLowerCase().contains(l.getAlias())) {
-                                    contestaspeech(l,l.getAlias());
-                                }else if (voz.toString().toLowerCase().contains(aliasLogeado)||voz.toString().toLowerCase().contains("estoy")){
-                                    contestaspeech(l,aliasLogeado);
-                                }else if(voz.toString().toLowerCase().contains("1 + 1")){
-
+                                    contestaspeech(l, l.getAlias());
+                                } else if (voz.toString().toLowerCase().contains(aliasLogeado) || voz.toString().toLowerCase().contains("estoy")) {
+                                    contestaspeech(l, aliasLogeado);
+                                } else if (voz.toString().toLowerCase().contains("1 + 1")) {
+                                    textToSpeech.speak("la respuesta es el fantástico ralf!", TextToSpeech.QUEUE_FLUSH, null);
                                 }
                             }
                         }
-
                     } catch (Exception e) {
                         Log.e("lista locss", "Listaloccsss" + e.getMessage());
                     }
                 }
-
             }
         }
         acercarZoom = true;
-
     }
 
-    private void contestaspeech(Localizacion l,String alias) {
+    private void contestaspeech(Localizacion l, String alias) {
         textToSpeech.speak("acercando cámara a " + alias, TextToSpeech.QUEUE_FLUSH, null);
         cam = CameraUpdateFactory.newLatLngZoom(
                 new LatLng(l.getLatitud(), l.getLongitud()), 20);
