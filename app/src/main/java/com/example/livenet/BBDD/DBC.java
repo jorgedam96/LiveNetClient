@@ -12,15 +12,18 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.example.livenet.model.FireUser;
+import com.example.livenet.model.LocalSesion;
+import com.example.livenet.model.Sesion;
+import com.example.livenet.model.Usuario;
 
 import java.util.ArrayList;
 
 public class DBC extends SQLiteOpenHelper {
-    private static final String livenetSql = "CREATE TABLE Usuario(ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+    private static final String livenetSql = "CREATE TABLE Sesion(ID INTEGER PRIMARY KEY AUTOINCREMENT," +
             "    ALIAS VARCHAR(255) NOT NULL UNIQUE," +
-            "    TOKEN VARCHAR(255) NOT NULL UNIQUE," +
-            "    LOGGEDIN DATETIME NOT NULL," +
-            "    CADUCIDAD DATETIME NOT NULL);";
+            "    PASSWD VARCHAR(255) NOT NULL," +
+            "    CORREO VARCHAR(255) NOT NULL UNIQUE," +
+            "    TOKEN VARCHAR(255) NOT NULL UNIQUE);";
 
     private static final String lnAmigosSql ="CREATE TABLE AMIGOS(" +
             "\n" +
@@ -159,9 +162,11 @@ public class DBC extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+
         values.put("alias", amigo[0]);
         values.put("foto", amigo[1]);
         values.put("token", amigo[2]);
+
         try {
             db.insert("Amigos", null, values);
         }catch(SQLiteException ex){
@@ -171,11 +176,54 @@ public class DBC extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void update(String[] amigo){
+    public void insertToken(Usuario usuario){
+
         SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM SESION");
+
         ContentValues values = new ContentValues();
+        values.put("alias", usuario.getAlias());
+        values.put("passwd", usuario.getPasswd());
+        values.put("correo", usuario.getCorreo());
+        values.put("token", usuario.getToken());
 
-        db.update("Amigos", values, "alias=" + amigo[0], null);
-
+        db.insert("Sesion", null, values);
+        db.close();
     }
+
+    public LocalSesion recogerToken(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        LocalSesion sesion = new LocalSesion();
+        //Si hemos abierto correctamente la base de datos
+        if (db != null) {
+            //Seleccionamos todos
+            Cursor c = db.rawQuery("SELECT ALIAS, PASSWD, CORREO, TOKEN FROM SESION", null);
+            //Nos aseguramos de que existe al menos un registro
+            if (c.moveToFirst()) {
+                //Recorremos el cursor hasta que no haya más registros
+                do {
+                    sesion = new LocalSesion(c.getString(0), c.getString(2), c.getString(1), c.getString(3));
+                } while (c.moveToNext());
+            }
+            //Cerramos la base de datos
+            c.close();
+
+
+        }
+        db.close();
+
+
+        return sesion;
+    }
+
+    public void cerrarSesion(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("DELETE FROM SESION");
+        db.close();
+        this.close();
+    }
+
+
+
 }

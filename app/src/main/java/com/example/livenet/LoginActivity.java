@@ -17,8 +17,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DBC dbc = new DBC(getApplicationContext(), "localCfgBD", null, 1);
-        dbc.close();
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.containerLogin, LoginFragment.newInstance())
@@ -29,25 +28,7 @@ public class LoginActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.login_activity);
 
-        irALogin();
     }
 
-    private void irALogin() {
-        try {
 
-
-            LoginFragment fl = new LoginFragment();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.nav_default_enter_anim, R.anim.nav_default_exit_anim, R.anim.nav_default_pop_enter_anim, R.anim.nav_default_pop_exit_anim)
-                    .replace(R.id.containerLogin, fl)
-                    .commit();
-        } catch (Exception e) {
-            if (e.getMessage() != null) {
-                Log.e("irLogin", e.getMessage());
-            }
-        }
-
-    }
 }

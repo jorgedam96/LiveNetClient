@@ -1,4 +1,4 @@
-package com.example.livenet;
+package com.example.livenet.util;
 
 import android.app.Activity;
 import android.content.Context;

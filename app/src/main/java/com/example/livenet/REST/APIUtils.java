@@ -34,4 +34,9 @@ public class APIUtils {
         return RetrofitClient.getClient(API_URL).create(AmigosRest.class);
     }
 
+    public static SesionesRest getSesionesService(){
+
+        return RetrofitClient.getClient(API_URL).create(SesionesRest.class);
+    }
+
 }

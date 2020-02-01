@@ -40,6 +40,12 @@ public class Usuario {
         this.passwd = passwd;
     }
 
+    public Usuario(String alias, String correo, String passwd) {
+        this.alias = alias;
+        this.correo = correo;
+        this.passwd = passwd;
+    }
+
     public Usuario(int id, String alias, String correo, String passwd, String foto, String token) {
         this.id = id;
         this.alias = alias;

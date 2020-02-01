@@ -25,12 +25,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.livenet.BBDD.DBC;
 import com.example.livenet.LoginActivity;
 import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
+import com.example.livenet.REST.SesionesRest;
 import com.example.livenet.REST.UsuariosRest;
+import com.example.livenet.model.Sesion;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.util.MyB64;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -56,7 +59,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private Button btnAgregarAmigo;
     private Button btnVerQR;
     private TextView tvNombre;
-    private AmigosRest amigoRest;
     private Usuario usuarioLogeado;
     private View root;
     private UsuariosRest usuRest;
@@ -83,7 +85,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
         logout = root.findViewById(R.id.btLogout);
         logout.setOnClickListener(this);
-
         ivFotoPerfil = root.findViewById(R.id.ivFotoPerfil);
         btnAgregarAmigo = root.findViewById(R.id.btnAgregarAmigo);
         btnVerQR = root.findViewById(R.id.btnVerQR);
@@ -139,9 +140,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,
                                         int which) {
-                        Intent intent = new Intent(getActivity(), LoginActivity.class);
-                        startActivity(intent);
-                        getActivity().finish();
+                        DBC dbc = new DBC(getContext(),"localCfgBD", null, 1);
+                        cerrarSesionRest(dbc.recogerToken().getToken(), dbc);
+
+
+
+
                     }
                 });
 
@@ -176,7 +180,26 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void reiniciarApp() {
+    private void cerrarSesionRest(String token, DBC dbc) {
+        System.out.println("TOKEN"+token);
+        Call<String> call = APIUtils.getSesionesService().borrarSesion(token);
+
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+
+
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                dbc.cerrarSesion();
+                Toast.makeText(root.getContext(),"Sesion cerrada", Toast.LENGTH_SHORT).show();
+                getActivity().finish();
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 

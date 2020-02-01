@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,20 +30,22 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.livenet.KernelUsuarios.FireBaseMain;
+import com.example.livenet.BBDD.DBC;
+import com.example.livenet.KernelUsuarios.TokenCrypt;
 import com.example.livenet.LoginActivity;
 import com.example.livenet.MainActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
+import com.example.livenet.REST.SesionesRest;
 import com.example.livenet.REST.UsuariosRest;
-import com.example.livenet.Utilidades;
+import com.example.livenet.model.LocalSesion;
+import com.example.livenet.model.Sesion;
+import com.example.livenet.util.Utilidades;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +77,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
     private Animation rotation, intermitente;
 
 
+    //Session control
+    private DBC dbc;
+    private LocalSesion last;
+    private SesionesRest sesionesRest;
+
+
     public static LoginFragment newInstance() {
         return new LoginFragment();
     }
@@ -95,7 +105,71 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
             Toast.makeText(root.getContext(), "No hay internet", Toast.LENGTH_SHORT).show();
         }
 
+        dbc = new DBC(root.getContext(), "localCfgBD", null, 1);
+        sesionesRest = APIUtils.getSesionesService();
+
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SystemClock.sleep(1000);
+        recoverLastSesion();
+
+
+    }
+
+    private void recoverLastSesion() {
+        last = dbc.recogerToken();
+        loadingLayout.setVisibility(View.VISIBLE);
+        rotation = AnimationUtils.loadAnimation(getContext(), R.anim.rotation);
+        ivLoading.startAnimation(rotation);
+        intermitente = AnimationUtils.loadAnimation(getContext(), R.anim.intermitente);
+        tvLoading.startAnimation(intermitente);
+        tvLoading.setText(R.string.recuperandosesion);
+        if (last.getAlias() != null) {
+            Usuario logged = new Usuario(last.getAlias(), last.getCorreo(), last.getPasswd());
+
+
+            Call<Integer> call = sesionesRest.findByToken(last.getToken());
+            call.enqueue(new Callback<Integer>() {
+                @Override
+                public void onResponse(Call<Integer> call, Response<Integer> response) {
+                    if (response.isSuccessful()) {
+                        //hay respuesta
+
+                        if (response.code() == 200) {
+                            int codigo = response.body();
+                            if (codigo == 121) {
+
+                                Toast.makeText(root.getContext(), "Sesion recuperada: " + logged.getAlias(), Toast.LENGTH_SHORT).show();
+                                dbc.close();
+                                loginFireBase(logged);
+                            } else if (codigo == 323) {
+                                Toast.makeText(getContext(), "Sesion expirada: " + logged.getAlias(), Toast.LENGTH_SHORT).show();
+                                dbc.cerrarSesion();
+                                loadingLayout.setVisibility(View.INVISIBLE);
+                            }
+
+                        } else if (response.code() == 204) {
+                            loadingLayout.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Integer> call, Throwable t) {
+                    Log.e("ERROR: ", Objects.requireNonNull(t.getMessage()));
+                    Toast.makeText(root.getContext(), "No se pudo recuperar la sesion", Toast.LENGTH_SHORT).show();
+                    loadingLayout.setVisibility(View.INVISIBLE);
+                }
+            });
+        } else {
+            loadingLayout.setVisibility(View.INVISIBLE);
+
+            dbc.close();
+        }
     }
 
 
@@ -122,12 +196,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
     public void onClick(View v) {
 
         switch (v.getId()) {
-            case R.id.etUsuarioLogin:
-
-                break;
-            case R.id.etPassLogin:
-
-                break;
             case R.id.card_viewLoginEntrar:
                 comprobarUsuario();
                 break;
@@ -159,17 +227,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
         ivLoading.startAnimation(rotation);
         intermitente = AnimationUtils.loadAnimation(getContext(), R.anim.intermitente);
         tvLoading.startAnimation(intermitente);
-
+        tvLoading.setText(R.string.logeando);
         try {
             //valores de los edit text
             String usrStr = usuario.getText().toString();
-            String passStr = pass.getText().toString();
-
-            MessageDigest digest = null;
-            digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(pass.getText().toString().getBytes(StandardCharsets.UTF_8));
+            String passStr = TokenCrypt.toHexString(TokenCrypt.getSHA(pass.getText().toString()));
             //consulta si existe
-
+            System.out.println("Password: " + passStr);
 
             Call<Usuario> call = usuariosRest.login(new LoginBody(usrStr, passStr));
             call.enqueue(new Callback<Usuario>() {
@@ -183,6 +247,18 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
                             Toast.makeText(root.getContext(), "Login correcto", Toast.LENGTH_SHORT).show();
                             Usuario usr = response.body();
                             usr.setPasswd(passStr);
+                            Long current = System.currentTimeMillis();
+                            try {
+                                usr.setToken(TokenCrypt.genToken(usr.getAlias(), current));
+                                Sesion sesion = new Sesion();
+                                sesion.setToken(usr.getToken());
+                                sesion.setAlias(usr.getAlias());
+                                sesion.setLoggedin(current);
+                                insertarSesion(sesion);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                            dbc.insertToken(usr);
                             loginFireBase(usr);
 
 
@@ -197,7 +273,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
                 @Override
                 public void onFailure(Call<Usuario> call, Throwable t) {
                     Log.e("ERROR: ", Objects.requireNonNull(t.getMessage()));
-                    Toast.makeText(root.getContext(), "No se puede iniciar Sesión", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "No se puede iniciar Sesión", Toast.LENGTH_SHORT).show();
                     loadingLayout.setVisibility(View.INVISIBLE);
                 }
             });
@@ -207,6 +283,31 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
             }
         }
     }
+
+    private void insertarSesion(Sesion sesion) {
+        Call<Sesion> call = sesionesRest.insertsesion(sesion);
+        call.enqueue(new Callback<Sesion>() {
+            @Override
+            public void onResponse(Call<Sesion> call, Response<Sesion> response) {
+                if (response.isSuccessful()) {
+                    //hay respuesta
+
+                    if (response.code() == 200) {
+                        Toast.makeText(root.getContext(), "Sesion guardada", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Sesion> call, Throwable t) {
+                Log.e("ERROR: ", Objects.requireNonNull(t.getMessage()));
+                Toast.makeText(getContext(), "No se pudo guardar la sesion", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
 
     public void loginFireBase(Usuario usr) {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(usr.getCorreo(), usr.getPasswd()).
@@ -218,18 +319,22 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Ser
                 });
     }
 
+
     private void irApp(Usuario user) {
 
+        getActivity().finish();
 
-        Intent intent = new Intent((LoginActivity) getActivity(), MainActivity.class);
+
+        loadingLayout.setVisibility(View.INVISIBLE);
+        dbc.close();
+        Intent intent = new Intent(getActivity(), MainActivity.class);
         Bundle datos = new Bundle();
-
         datos.putString("alias", user.getAlias());
         datos.putString("correo", user.getCorreo());
         datos.putString("token", user.getToken());
         intent.putExtras(datos);
         startActivity(intent);
-        getActivity().finish();
+
 
     }
 

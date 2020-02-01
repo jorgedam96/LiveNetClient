@@ -23,16 +23,17 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.livenet.KernelUsuarios.TokenCrypt;
+import com.example.livenet.LoginActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.UsuariosRest;
-import com.example.livenet.Utilidades;
+import com.example.livenet.util.Utilidades;
 
 import com.example.livenet.model.Usuario;
 
 import com.example.livenet.util.MyB64;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -162,6 +163,13 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     usuario.setError("El nombre debe tener minimo 4 caracteres!");
                 }
+
+                if(!nickname.matches("[a-zA-Z0-9]+")){
+                    nombreok = false;
+                    nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
+                    usuario.setError("El nombre solo puede ser alfanumerico");
+
+                }
                 checkData();
             }
 
@@ -217,7 +225,12 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     passlayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     pass.setError("La contraseña debe tener minimo 6 caracteres");
                 }
+                if(!pwd.matches("[a-zA-Z0-9]+")){
+                    pwd6 = false;
+                    nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
+                    usuario.setError("La contraseña solo puede ser alfanumerica");
 
+                }
                 checkData();
             }
 
@@ -347,8 +360,14 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
     private void registrarUsuario(String token) {
 
         String usuarioStr = usuario.getText().toString();
-        String passStr = pass.getText().toString();
+        String passStr = "";
         String emailStr = email.getText().toString();
+        try{
+            passStr = TokenCrypt.toHexString(TokenCrypt.getSHA(pass.getText().toString()));
+        }catch(Exception ex){
+
+        }
+
 
         final Usuario user = new Usuario(0, usuarioStr, emailStr, passStr, MyB64.bitmapToBase64(BitmapFactory.decodeResource(getResources(), R.drawable.defaultphoto)), token);
         user.setToken(token);
@@ -377,7 +396,11 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
 
     //Registro del usuario en firebase
     private void registrarFirebase() {
-        auth.createUserWithEmailAndPassword(email.getText().toString(), pass.getText().toString()).
+        String pwdcifred = "";
+        try{
+            pwdcifred = TokenCrypt.toHexString(TokenCrypt.getSHA(pass.getText().toString()));
+        }catch(Exception ex){}
+        auth.createUserWithEmailAndPassword(email.getText().toString(), pwdcifred).
                 addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = auth.getCurrentUser();
