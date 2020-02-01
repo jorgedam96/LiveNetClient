@@ -3,25 +3,22 @@ package com.example.livenet.ui.mapas;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
-import android.widget.Toast;
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -36,9 +33,6 @@ import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Localizacion;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.util.MyB64;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,7 +42,6 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,7 +49,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -69,6 +61,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.app.Activity.RESULT_OK;
+
 public class MapaFragment extends Fragment implements OnMapReadyCallback {
 
 
@@ -78,6 +72,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
     private Location anterior;
     private Location ultima;
     private CardView btnCam;
+    private CardView btnVoice;
     private Handler handler;
     private Runnable runnable;
     private LocalizacionesRest locRest;
@@ -93,6 +88,11 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
     private boolean buscarFoto = true;
     private boolean camaraUnaVez = true;
     private int tiempoTimer = 100;
+    private TextToSpeech textToSpeech;
+    private final int REQUEST_CODE_RECONOCIMIENTO = 23;
+    private List<Localizacion> listaLocs;
+    private CameraUpdate cam;
+
 
     @Override
     public void setRetainInstance(boolean retain) {
@@ -125,10 +125,35 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         }
 
         inicializarBotonCam();
+        inicializarBotonVoz();
 
         locRest = APIUtils.getLocService();
 
         return root;
+    }
+
+    private void inicializarBotonVoz() {
+        btnVoice = root.findViewById(R.id.btnVoz);
+        btnVoice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textToSpeech = new TextToSpeech(root.getContext(), new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int status) {
+
+                        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                        //reconoce en el idioma del telefono
+                        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+                        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "¿Cómo quiere ordenar la lista?");
+                        try {
+                            startActivityForResult(intent, REQUEST_CODE_RECONOCIMIENTO);
+                        } catch (Exception e) {
+                        }
+                    }
+                });
+            }
+        });
     }
 
     private void inicializarBotonCam() {
@@ -183,6 +208,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                 if (miMarker != null) {
                     miMarker.remove();
                 }
+
+
                 miMarker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(location.getLatitude(), location.getLongitude()))
                         .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(aliasLogeado))))
@@ -225,7 +252,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
 
     private void acercarCamara(Location location) {
         if (acercarZoom) {
-            CameraUpdate cam = CameraUpdateFactory.newLatLngZoom(
+            cam = CameraUpdateFactory.newLatLngZoom(
                     new LatLng(location.getLatitude(), location.getLongitude()), 17);
             mMap.animateCamera(cam);
         }
@@ -366,7 +393,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
+        listaLocs = localizaciones;
         try {
+
             mMap.clear();
             miMarker = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(ultima.getLatitude(), ultima.getLongitude()))
@@ -492,6 +521,52 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
             valueAnimator.start();
         }
     }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == MainActivity.RESULT_CANCELED) {
+            return;
+        }
+
+        if (requestCode == REQUEST_CODE_RECONOCIMIENTO) {
+            if (resultCode == RESULT_OK && data != null) {
+                ArrayList<String> voz = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                //según la primera ocurrencia de cada palabra llama a rellenarjuegos() con un where
+                if (voz != null) {
+                    try {
+
+
+                        for (Localizacion l : listaLocs) {
+                            if (l.getAlias() != null) {
+                                acercarZoom = false;
+                                if (voz.toString().toLowerCase().contains(l.getAlias())) {
+                                    textToSpeech.setLanguage(Locale.getDefault());
+                                    textToSpeech.speak("acercando cámara a " + l.getAlias(), TextToSpeech.QUEUE_FLUSH, null);
+                                    cam = CameraUpdateFactory.newLatLngZoom(
+                                            new LatLng(l.getLatitud(), l.getLongitud()), 19);
+                                    mMap.animateCamera(cam);
+                                    acercarZoom = true;
+                                }else if (voz.toString().toLowerCase().contains(aliasLogeado)||voz.toString().toLowerCase().contains("estoy")){
+                                    textToSpeech.setLanguage(Locale.getDefault());
+                                    textToSpeech.speak("acercando cámara a " + aliasLogeado, TextToSpeech.QUEUE_FLUSH, null);
+                                    cam = CameraUpdateFactory.newLatLngZoom(
+                                            new LatLng(ultima.getLatitude(),ultima.getLongitude()), 19);
+                                    mMap.animateCamera(cam);
+                                    acercarZoom = true;
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e("lista locss", "Listaloccsss" + e.getMessage());
+                    }
+                }
+
+            }
+        }
+        acercarZoom = true;
+
+    }
+
 
     private interface LatLngInterpolator {
         LatLng interpolate(float fraction, LatLng a, LatLng b);
