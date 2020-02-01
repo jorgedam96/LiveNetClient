@@ -178,6 +178,14 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             @Override
             public void onMyLocationChange(Location location) {
+                if (miMarker != null) {
+                    miMarker.remove();
+                }
+                miMarker = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(aliasLogeado))))
+                        .title("Tú"));
+
                 ultima = location;
                 if (camaraUnaVez) {
                     acercarCamara(location);
@@ -354,7 +362,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
     private void recorrerListaLocs(List<Localizacion> localizaciones) {
         try {
             mMap.clear();
-            mMap.addMarker(new MarkerOptions()
+            miMarker = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(ultima.getLatitude(), ultima.getLongitude()))
                     .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(root.getContext(), marcadoresNombre.get(aliasLogeado))))
                     .title("Tú"));
