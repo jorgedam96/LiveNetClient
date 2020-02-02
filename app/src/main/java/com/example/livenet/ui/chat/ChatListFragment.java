@@ -136,16 +136,6 @@ public class ChatListFragment extends Fragment {
 
     }
 
-    private void runLayoutAnimation(final RecyclerView recyclerView) {
-        final Context context = recyclerView.getContext();
-        final LayoutAnimationController controller =
-                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation);
-
-        recyclerView.setLayoutAnimation(controller);
-
-        recyclerView.scheduleLayoutAnimation();
-    }
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
