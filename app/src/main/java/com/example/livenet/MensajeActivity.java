@@ -65,6 +65,7 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
     //Firebase
     private DatabaseReference reference;
     private ValueEventListener seenListener;
+    private FirebaseUser fuser;
 
 
     @Override
@@ -99,6 +100,7 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         bt_send.setOnClickListener(this);
         user_state = findViewById(R.id.mensajes_estado);
 
+        fuser = FirebaseAuth.getInstance().getCurrentUser();
 
         recyclerView = findViewById(R.id.chatRvMensajes);
         recyclerView.setHasFixedSize(true);
@@ -182,6 +184,25 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
 
 
         reference.child("Chats").push().setValue(hashMap);
+
+
+        final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
+                .child(fuser.getUid())
+                .child(receiverid);
+
+        chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()){
+                    chatRef.child("id").setValue(receiverid);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override

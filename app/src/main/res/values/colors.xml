@@ -15,4 +15,7 @@
     <color name="rec_mensaje">#FFF5C7</color>
     <color name="env_mensaje">#B2DCFF</color>
     <color name="mensaje_shadow">#B2FFFFFF</color>
+    <color name="color_off">#C10000</color>
+    <color name="color_on">#1ED100</color>
+    <color name="color_last_msg">#008CEA</color>
 </resources>

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,12 +27,20 @@ import com.example.livenet.MensajeActivity;
 import com.example.livenet.R;
 import com.example.livenet.REST.APIUtils;
 import com.example.livenet.REST.AmigosRest;
+import com.example.livenet.model.Chat;
 import com.example.livenet.model.FireUser;
 import com.example.livenet.model.LoginBody;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.ui.chat.ChatFragment;
 import com.example.livenet.ui.chat.UsersFragment;
 import com.example.livenet.util.MyB64;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -54,6 +63,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     private AmigosRest amigosRest;
     private FragmentManager fragmentManager;
     private boolean usuarios;
+
+    //Ultimo mensaje recibido o enviado
+    public String UltimoMensaje;
 
     public UsersAdapter(ArrayList<FireUser> list, Context context, MainActivity mainActivity, String localuserid, boolean usuarios, String localusername, FragmentManager fragmentManager) {
         this.list = list;
@@ -82,6 +94,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
         final FireUser user = list.get(position);
 
+        //Nombre del usuario
+        holder.nombre.setText(user.getUsername());
+
+        //Foto del usuario
         try {
             if (user.getImage().equals("defaultphoto")) {
                 holder.photo.setImageDrawable(context.getDrawable(R.drawable.defaultphoto));
@@ -91,12 +107,27 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
         } catch (Exception ex) {
             holder.photo.setImageDrawable(context.getDrawable(R.drawable.defaultphoto));
         }
-        holder.nombre.setText(user.getUsername());
+
+        //Estado del usuario
         try {
-            holder.status.setText(user.getStatus());
+
+            if(user.getStatus().equals("Conectado")){
+                holder.status.setImageResource(R.drawable.ic_connected);
+            }else{
+                holder.status.setImageResource(R.drawable.ic_disconnected);
+            }
         } catch (Exception ignored) {
-            holder.status.setText("");
+
         }
+
+        if(!usuarios){
+            lastMessage(user.getId(), holder.last_msg);
+        }else{
+            holder.last_msg.setVisibility(View.GONE);
+        }
+
+
+        //Item listener para ir al chat
         holder.itemView.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -108,8 +139,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
             }
         });
 
+        //Boton borrar usuario
         if (usuarios) {
-
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -205,15 +236,56 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public CircleImageView photo;
         public TextView nombre;
-        public TextView status;
+        public ImageView status;
         public ImageButton delete;
+        public TextView last_msg;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             this.photo = itemView.findViewById(R.id.UsersPhoto);
             this.nombre = itemView.findViewById(R.id.UsersName);
-            this.status = itemView.findViewById(R.id.UsersStatus);
+            this.status = itemView.findViewById(R.id.user_status_img);
             this.delete = itemView.findViewById(R.id.ibDeleteFriend);
+            this.last_msg = itemView.findViewById(R.id.last_message);
         }
+    }
+
+
+    private void lastMessage(String userid, TextView last_msg){
+        UltimoMensaje = "default";
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chats");
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class);
+                    if (chat.getReceiver().equals(firebaseUser.getUid()) && chat.getSender().equals(userid) ||
+                            chat.getReceiver().equals(userid) && chat.getSender().equals(firebaseUser.getUid())){
+                        UltimoMensaje = chat.getMessage();
+                    }
+
+                }
+
+                switch(UltimoMensaje){
+                    case "default":
+                        last_msg.setText("Sin mensajes");
+                        break;
+                    default:
+                        last_msg.setText(UltimoMensaje);
+                        break;
+
+                }
+
+                UltimoMensaje = "default";
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 }

@@ -14,33 +14,54 @@
         android:layout_height="50dp"
         android:src="@drawable/defaultphoto" />
 
+    <ImageView
+        android:id="@+id/user_status_img"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignBottom="@id/UsersPhoto"
+        android:layout_marginStart="-20dp"
+        android:layout_toEndOf="@id/UsersPhoto"
+        android:src="@drawable/ic_connected" />
+
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_toEndOf="@id/UsersPhoto"
         android:layout_toRightOf="@id/UsersPhoto"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:paddingLeft="15dp">
+        android:layout_toStartOf="@id/ibDeleteFriend"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/UsersName"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingLeft="15dp">
 
-            android:layout_marginStart="10dp"
-            android:text="Username"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/UsersName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Username"
 
-        <TextView
-            android:id="@+id/UsersStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/last_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|end"
+                android:gravity="start"
+                android:textColor="@color/color_last_msg"
+                android:layout_marginStart="10dp"
+                android:text="Mensaje"
+                android:textSize="10sp" />
 
-            android:layout_marginStart="10dp"
-            android:text="Desconectado"
-            android:textSize="12sp" />
+
+        </LinearLayout>
+
+
     </LinearLayout>
 
     <ImageButton
