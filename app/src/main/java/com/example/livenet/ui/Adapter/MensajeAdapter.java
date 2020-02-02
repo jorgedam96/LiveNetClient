@@ -65,9 +65,21 @@ public class MensajeAdapter  extends RecyclerView.Adapter<MensajeAdapter.ViewHol
 
         if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(msg.getSender())){
             holder.sender.setText(R.string.sender_msg);
+            if(position == list.size()-1){
+                if (msg.isSeen()){
+                    holder.seen_message.setText(R.string.visto);
+                }else{
+                    holder.seen_message.setText(R.string.enviado);
+                }
+
+            }else{
+                holder.seen_message.setVisibility(View.GONE);
+            }
         }else{
             holder.sender.setText(amigo);
         }
+
+
 
 
     }
@@ -80,12 +92,14 @@ public class MensajeAdapter  extends RecyclerView.Adapter<MensajeAdapter.ViewHol
     public class ViewHolder extends RecyclerView.ViewHolder{
         public TextView sender;
         public TextView show_message;
+        public TextView seen_message;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             this.sender = itemView.findViewById(R.id.tvUserChat);
             this.show_message = itemView.findViewById(R.id.mensaje_chat);
+            this.seen_message = itemView.findViewById(R.id.tvSeen);
         }
     }
 

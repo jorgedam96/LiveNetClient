@@ -45,21 +45,27 @@ import retrofit2.Response;
 
 public class MensajeActivity extends AppCompatActivity implements View.OnClickListener {
 
-    CircleImageView foto;
-    String localuserid;
-    DatabaseReference reference;
-    TextView username;
-    private DBC dbc;
-    String usern;
-    String receiverid;
+    private CircleImageView foto;
+    private String localuserid;
 
-    RecyclerView recyclerView;
-    ArrayList<Chat> mChat;
-    MensajeAdapter adapter;
+    private TextView username;
+    private DBC dbc;
+    private String usern;
+    private String receiverid;
+
+    private RecyclerView recyclerView;
+    private ArrayList<Chat> mChat;
+    private MensajeAdapter adapter;
 
     //Elementos UI
     private EditText text_send;
     private ImageButton bt_send;
+    private TextView user_state;
+
+    //Firebase
+    private DatabaseReference reference;
+    private ValueEventListener seenListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,25 +97,48 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         text_send = findViewById(R.id.tvMensajeEnviado);
         bt_send = findViewById(R.id.btEnviar);
         bt_send.setOnClickListener(this);
+        user_state = findViewById(R.id.mensajes_estado);
+
 
         recyclerView = findViewById(R.id.chatRvMensajes);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager l = new LinearLayoutManager(getApplicationContext());
         l.setStackFromEnd(true);
         recyclerView.setLayoutManager(l);
-        DBC dbc = new DBC(getApplicationContext(),"localCfgBD", null , 1);
+        DBC dbc = new DBC(getApplicationContext(), "localCfgBD", null, 1);
         foto.setImageBitmap(MyB64.base64ToBitmap(dbc.getFotoAmigo(usern)));
         dbc.close();
-
+        seenMsg();
     }
 
+    private void seenMsg() {
+        reference = FirebaseDatabase.getInstance().getReference("Chats");
+        seenListener = reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class);
+
+                    if(chat.getReceiver().equals(localuserid) && chat.getSender().equals(receiverid)){
+                        HashMap<String, Object> hashMap = new HashMap<>();
+
+                        hashMap.put("seen", true);
+                        snapshot.getRef().updateChildren(hashMap);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
 
     private void rellenarChat() {
         dbc = new DBC(getApplicationContext(), "localCfgBD", null, 1);
-
-
         reference = FirebaseDatabase.getInstance().getReference("Users").child(dbc.getTokenAmigo(usern));
-
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -117,6 +146,7 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
                     FireUser fuser = dataSnapshot.getValue(FireUser.class);
                     receiverid = fuser.getId();
                     readMensaje(FirebaseAuth.getInstance().getCurrentUser().getUid(), receiverid);
+                    user_state.setText(fuser.getStatus());
                 } catch (Exception ex) {
 
                     reference.removeEventListener(this);
@@ -133,6 +163,13 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
+    @Override
+    protected void onDestroy() {
+        dbc.close();
+        reference.removeEventListener(seenListener);
+        super.onDestroy();
+    }
+
     private void sendMessage(String sender, String receiver, String message) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
@@ -141,6 +178,7 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         hashMap.put("sender", sender);
         hashMap.put("receiver", receiver);
         hashMap.put("message", message);
+        hashMap.put("seen", false);
 
 
         reference.child("Chats").push().setValue(hashMap);

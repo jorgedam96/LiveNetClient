@@ -27,4 +27,6 @@
     <string name="amigos">Amigos</string>
     <string name="sender_msg">Tú</string>
     <string name="recuperandosesion">Recuperando Sesion...</string>
+    <string name="visto">Visto</string>
+    <string name="enviado">Enviado</string>
 </resources>
