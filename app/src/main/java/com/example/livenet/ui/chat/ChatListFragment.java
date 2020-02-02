@@ -39,7 +39,9 @@ public class ChatListFragment extends Fragment {
     private UsersAdapter adapter;
     DatabaseReference reference;
     private View root;
-    private ValueEventListener listado;
+    private DBC dbc;
+    private String fuserid;
+    private String fusername;
 
     private ArrayList<String> usersList;
 
@@ -57,9 +59,81 @@ public class ChatListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
         usersList = new ArrayList<>();
-        listenerChat();
+        fuserid = ((MainActivity)getActivity()).getFireBaseMain().getLogged().getToken();
+        fusername = ((MainActivity)getActivity()).getFireBaseMain().getLogged().getAlias();
+        usersList = new ArrayList<>();
+        dbc = new DBC(root.getContext(), "localCfgBD", null, 1);
+        reference = FirebaseDatabase.getInstance().getReference("Chats");
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                usersList.clear();
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class);
+
+                    if(chat.getSender().equals(fuserid)){
+                        usersList.add(chat.getReceiver());
+                    }
+                    if(chat.getReceiver().equals(fuserid)){
+                        usersList.add(chat.getSender());
+                    }
+
+                }
+
+                readChats();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
         return root;
+    }
+
+    private void readChats(){
+        mUsers = new ArrayList<>();
+
+        reference = FirebaseDatabase.getInstance().getReference("Users");
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mUsers.clear();
+
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    FireUser user  = snapshot.getValue(FireUser.class);
+
+                    for (String id: usersList){
+                        if(user.getId().equals(id)){
+                            if(mUsers.size() != 0){
+                                for (FireUser user1 : mUsers){
+                                    if(!user.getId().equals(user1.getId())){
+                                        user.setImage(dbc.getFotoAmigo(user.getUsername()));
+                                        mUsers.add(user);
+                                    }
+                                }
+                            }else{
+                                user.setImage(dbc.getFotoAmigo(user.getUsername()));
+                                mUsers.add(user);
+                            }
+                        }
+                    }
+                }
+                adapter = new UsersAdapter(mUsers,root.getContext(), ((MainActivity)getActivity()), fuserid, false, fusername, getFragmentManager());
+                recyclerView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private void runLayoutAnimation(final RecyclerView recyclerView) {
@@ -79,84 +153,11 @@ public class ChatListFragment extends Fragment {
         // TODO: Use the ViewModel
     }
 
-    private void listenerChat() {
-        reference = FirebaseDatabase.getInstance().getReference("Chats");
-
-        listado = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                usersList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Chat chat = snapshot.getValue(Chat.class);
-                    try {
-                        //Comprobamos si el mensaje viene de nuestra parte
-                        if (chat.getSender().equals(((MainActivity) getActivity()).getFireBaseMain().getUsuario().getUid())) {
-                            if (!usersList.contains(chat.getReceiver())) {
-                                usersList.add(chat.getReceiver());
-                            }
-                        }
-                        //Comprobamos si viene de otro usuario
-                        if (chat.getReceiver().equals(((MainActivity) getActivity()).getFireBaseMain().getUsuario().getUid())) {
-                            if (!usersList.contains(chat.getSender())) {
-                                usersList.add(chat.getSender());
-                            }
-                        }
-                    } catch (NullPointerException ex) {
-                    }
-
-                }
-                readChats();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        reference.addValueEventListener(listado);
-    }
-
-    /**
-     * Leemos los usuarios de la BBDD y mostramos en la lista de chats unicamente con los
-     * que hemos entablado conversacion, revisando que solo muestre 1 usuario por cada conversacion
-     */
-    private void readChats() {
-        try {
-            mUsers.clear();
-            String[] tokensUser;
-            usersList.toArray(tokensUser = new String[usersList.size()]);
-            DBC dbc = new DBC(root.getContext(), "localCfgBD", null, 1);
-            for (String token : tokensUser) {
-                FireUser user = dbc.selectByToken(token);
-                mUsers.add(user);
-            }
-            for (FireUser user : mUsers) {
-                if (user.getUsername().isEmpty()) {
-                    mUsers.remove(user);
-                }
-            }
-
-            dbc.close();
-            adapter = new UsersAdapter(mUsers,
-                    root.getContext(),
-                    (MainActivity)getActivity(),
-                    FirebaseAuth.getInstance().getCurrentUser().getUid(),
-                    false,
-                    ((MainActivity) getActivity()).getLogged().getAlias(),
-                    getFragmentManager());
-            recyclerView.setAdapter(adapter);
-            runLayoutAnimation(recyclerView);
-        } catch (Exception e) {
-            if (e.getMessage() != null) {
-                System.out.println(" read chats: " + e.getMessage());
-            }
-        }
-    }
 
 
     @Override
     public void onDestroy() {
-        reference.removeEventListener(listado);
+
         super.onDestroy();
     }
 }

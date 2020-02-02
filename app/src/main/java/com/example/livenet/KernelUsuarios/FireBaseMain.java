@@ -39,6 +39,7 @@ public class FireBaseMain {
         this.dbc = dbc;
         this.checkingAmigos = new CheckingAmigos(context, dbc, logged);
         this.checkingAmigos.initComprobaciones();
+        status("Conectado");
     }
 
     public FireBaseMain(Context context){

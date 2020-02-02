@@ -85,9 +85,7 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         intent = getIntent();
         usern = intent.getStringExtra("username");
         username.setText(usern);
-        DBC dbc = new DBC(getApplicationContext(),"localCfgBD", null , 1);
-        foto.setImageBitmap(MyB64.base64ToBitmap(dbc.getFotoAmigo(usern)));
-        dbc.close();
+
         rellenarChat();
 
         text_send = findViewById(R.id.tvMensajeEnviado);
@@ -99,7 +97,9 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         LinearLayoutManager l = new LinearLayoutManager(getApplicationContext());
         l.setStackFromEnd(true);
         recyclerView.setLayoutManager(l);
-
+        DBC dbc = new DBC(getApplicationContext(),"localCfgBD", null , 1);
+        foto.setImageBitmap(MyB64.base64ToBitmap(dbc.getFotoAmigo(usern)));
+        dbc.close();
 
     }
 
@@ -114,15 +114,8 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {
-                    System.out.println(dataSnapshot.getChildrenCount());
                     FireUser fuser = dataSnapshot.getValue(FireUser.class);
                     receiverid = fuser.getId();
-                    if (fuser.getImage().equals("defaultphoto")) {
-                        foto.setImageResource(R.drawable.defaultphoto);
-                    } else {
-                        foto.setImageDrawable(new BitmapDrawable(getResources(), MyB64.base64ToBitmap(fuser.getImage())));
-                    }
-
                     readMensaje(FirebaseAuth.getInstance().getCurrentUser().getUid(), receiverid);
                 } catch (Exception ex) {
 
