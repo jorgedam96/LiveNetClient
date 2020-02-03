@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +26,11 @@ import com.example.livenet.model.FireUser;
 import com.example.livenet.model.Usuario;
 import com.example.livenet.ui.Adapter.UsersAdapter;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +43,11 @@ public class UsersFragment extends Fragment {
     private RecyclerView recyclerView;
     private UsersAdapter adapter;
     private ArrayList<FireUser> mUsers;
+    private ArrayList<FireUser> mUsersFirebase;
     private DBC dbc;
     private View root;
+    private String fuser;
+    private String fuserid;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,31 +60,46 @@ public class UsersFragment extends Fragment {
         mUsers = new ArrayList<>();
         readUsers();
         dbc.close();
+        fuser = ((MainActivity)getActivity()).getFireBaseMain().getLogged().getAlias();
+        fuserid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         return root;
-    }
-
-    private void runLayoutAnimation(final RecyclerView recyclerView) {
-        final Context context = recyclerView.getContext();
-        final LayoutAnimationController controller =
-                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation);
-
-        recyclerView.setLayoutAnimation(controller);
-
-        recyclerView.scheduleLayoutAnimation();
     }
 
     private void readUsers() {
         dbc = new DBC(getActivity(), "localCfgBD", null, 1);
         mUsers = dbc.seleccionarData();
-        adapter = new UsersAdapter(mUsers, root.getContext(),
-                (MainActivity)getActivity(),
-                FirebaseAuth.getInstance().getCurrentUser().getUid(),
-                true,
-                ((MainActivity)getActivity()).getLogged().getAlias(),
-                getFragmentManager());
 
-        recyclerView.setAdapter(adapter);
-        runLayoutAnimation(recyclerView);
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mUsersFirebase = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    FireUser fireUser = snapshot.getValue(FireUser.class);
+                    for (FireUser user : mUsers){
+                        if(fireUser.getId().equals(user.getId())){
+                            mUsersFirebase.add(fireUser);
+                        }
+                    }
+                }
+                adapter = new UsersAdapter(mUsersFirebase, root.getContext(),
+                        (MainActivity)getActivity(),
+                        fuserid,
+                        true,
+                        fuser,
+                        getFragmentManager());
+                recyclerView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+
     }
 
 

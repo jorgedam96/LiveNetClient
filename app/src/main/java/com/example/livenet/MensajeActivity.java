@@ -111,6 +111,27 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
         foto.setImageBitmap(MyB64.base64ToBitmap(dbc.getFotoAmigo(usern)));
         dbc.close();
         seenMsg();
+
+    }
+
+    private void status(String status){
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("status", status);
+        reference.updateChildren(hashMap);
+    }
+
+    @Override
+    protected void onResume() {
+        status("Conectado");
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        status("Desconectado");
+        super.onPause();
     }
 
     private void seenMsg() {

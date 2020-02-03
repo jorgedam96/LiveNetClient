@@ -31,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class ChatListFragment extends Fragment {
 
@@ -43,7 +44,7 @@ public class ChatListFragment extends Fragment {
     private String fuserid;
     private String fusername;
 
-    private ArrayList<String> usersList;
+    private HashSet<String> usersList;
 
     public static ChatListFragment newInstance() {
         return new ChatListFragment();
@@ -58,10 +59,11 @@ public class ChatListFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mUsers = new ArrayList<>();
-        usersList = new ArrayList<>();
         fuserid = ((MainActivity)getActivity()).getFireBaseMain().getLogged().getToken();
         fusername = ((MainActivity)getActivity()).getFireBaseMain().getLogged().getAlias();
-        usersList = new ArrayList<>();
+
+
+        usersList = new HashSet<>();
         dbc = new DBC(root.getContext(), "localCfgBD", null, 1);
         reference = FirebaseDatabase.getInstance().getReference("Chats");
 
@@ -110,17 +112,8 @@ public class ChatListFragment extends Fragment {
 
                     for (String id: usersList){
                         if(user.getId().equals(id)){
-                            if(mUsers.size() != 0){
-                                for (FireUser user1 : mUsers){
-                                    if(!user.getId().equals(user1.getId())){
-                                        user.setImage(dbc.getFotoAmigo(user.getUsername()));
-                                        mUsers.add(user);
-                                    }
-                                }
-                            }else{
-                                user.setImage(dbc.getFotoAmigo(user.getUsername()));
-                                mUsers.add(user);
-                            }
+                            user.setImage(dbc.getFotoAmigo(user.getUsername()));
+                            mUsers.add(user);
                         }
                     }
                 }

@@ -98,6 +98,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        fireBaseMain.status("Conectado");
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        fireBaseMain.status("Desconectado");
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
         fireBaseMain.cerrarSesion();
         super.onDestroy();
