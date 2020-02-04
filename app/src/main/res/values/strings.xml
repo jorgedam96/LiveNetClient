@@ -1,15 +1,15 @@
 <resources>
-    <string name="app_name">LiveNet</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
-    <string name="username">Username</string>
+    <string name="app_name" translatable="false">LiveNet</string>
+    <string name="title_home" translatable="false">Home</string>
+    <string name="title_dashboard" translatable="false">Dashboard</string>
+    <string name="title_notifications" translatable="false">Notifications</string>
+    <string name="username" translatable="false">Username</string>
     <string name="password">Password</string>
     <string name="register_here">Register Here.</string>
-    <string name="todo">TODO</string>
+    <string name="todo" translatable="false">TODO</string>
     <string name="usuario">Usuario</string>
     <string name="contrase_a">Contraseña</string>
-    <string name="email">Email</string>
+    <string name="email" translatable="false">Email</string>
     <string name="registrarse">Registrarse</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -17,7 +17,7 @@
     <string name="repite_la_contrase_a">Repite la contraseña</string>
     <string name="volver">Volver</string>
     <string name="entrar">Entrar</string>
-    <string name="chat">Chat</string>
+    <string name="chat" translatable="false">Chat</string>
     <string name="perfil">Perfil</string>
     <string name="mapa">Mapa</string>
     <string name="loading">Imagen de carga</string>
