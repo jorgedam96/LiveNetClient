@@ -332,7 +332,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                 if (response.isSuccessful()) {
                     //hay respuesta
-                    Toast.makeText(root.getContext(), String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(root.getContext(), String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                     if (response.code() == 200) {
                         Toast.makeText(root.getContext(), "El nombre de usuario ya existe", Toast.LENGTH_SHORT).show();
                         layoutLoading.setVisibility(View.INVISIBLE);

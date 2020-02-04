@@ -145,7 +145,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                         //reconoce en el idioma del telefono
                         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-                        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "¿Cómo quiere ordenar la lista?");
+                        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Di el nombre de un amigo para buscarlo en el mapa");
                         try {
                             startActivityForResult(intent, REQUEST_CODE_RECONOCIMIENTO);
                         } catch (Exception e) {
@@ -540,8 +540,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                                     contestaspeech(l, l.getAlias());
                                 } else if (voz.toString().toLowerCase().contains(aliasLogeado) || voz.toString().toLowerCase().contains("estoy")) {
                                     contestaspeech(l, aliasLogeado);
-                                } else if (voz.toString().toLowerCase().contains("1 + 1")) {
-                                    textToSpeech.speak("la respuesta es el fantástico ralf!", TextToSpeech.QUEUE_FLUSH, null);
+                                } else if (voz.toString().toLowerCase().contains("hola")) {
+                                    textToSpeech.speak("Hola "+aliasLogeado, TextToSpeech.QUEUE_FLUSH, null);
                                 }
                             }
                         }
