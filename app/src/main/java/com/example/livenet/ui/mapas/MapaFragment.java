@@ -137,6 +137,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                acercarZoom=false;
                 textToSpeech = new TextToSpeech(root.getContext(), new TextToSpeech.OnInitListener() {
                     @Override
                     public void onInit(int status) {
@@ -551,7 +552,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         }
-        acercarZoom = true;
     }
 
     private void contestaspeech(Localizacion l, String alias) {
