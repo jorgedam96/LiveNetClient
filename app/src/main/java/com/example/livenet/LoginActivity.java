@@ -17,7 +17,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        DBC dbc = new DBC(getApplicationContext(),"localCfgBD", null, 1);
+        dbc.close();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.containerLogin, LoginFragment.newInstance())

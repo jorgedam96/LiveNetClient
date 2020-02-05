@@ -169,6 +169,10 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     usuario.setError("El nombre solo puede ser alfanumerico");
 
+                }else{
+                    nombreok = true;
+                    nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
+                    usuario.setError(null);
                 }
                 checkData();
             }

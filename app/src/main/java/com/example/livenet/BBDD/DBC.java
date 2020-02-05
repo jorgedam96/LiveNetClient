@@ -19,7 +19,7 @@ import com.example.livenet.model.Usuario;
 import java.util.ArrayList;
 
 public class DBC extends SQLiteOpenHelper {
-    private static final String livenetSql = "CREATE TABLE Sesion(ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+    private static final String livenetSql = "CREATE TABLE SESION(ID INTEGER PRIMARY KEY AUTOINCREMENT," +
             "    ALIAS VARCHAR(255) NOT NULL UNIQUE," +
             "    PASSWD VARCHAR(255) NOT NULL," +
             "    CORREO VARCHAR(255) NOT NULL UNIQUE," +
