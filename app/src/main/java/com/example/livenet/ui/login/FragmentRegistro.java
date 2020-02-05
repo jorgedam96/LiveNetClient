@@ -149,7 +149,6 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String nickname = usuario.getText().toString();
@@ -163,20 +162,13 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     usuario.setError("El nombre debe tener minimo 4 caracteres!");
                 }
-
                 if(!nickname.matches("[a-zA-Z0-9]+")){
                     nombreok = false;
                     nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     usuario.setError("El nombre solo puede ser alfanumerico");
-
-                }else{
-                    nombreok = true;
-                    nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.ok));
-                    usuario.setError(null);
                 }
                 checkData();
             }
-
             @Override
             public void afterTextChanged(Editable s) {
 
@@ -186,9 +178,7 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
         email.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String mail = email.getText().toString();
@@ -203,7 +193,6 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                 }
                 checkData();
             }
-
             @Override
             public void afterTextChanged(Editable s) {
 
@@ -233,17 +222,13 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
                     pwd6 = false;
                     nombrelayout.setBoxStrokeColor(getResources().getColor(R.color.error));
                     usuario.setError("La contraseña solo puede ser alfanumerica");
-
                 }
                 checkData();
             }
-
             @Override
             public void afterTextChanged(Editable s) {
 
             }
-
-
         });
 
         passcheck.addTextChangedListener(new TextWatcher() {
@@ -294,15 +279,11 @@ public class FragmentRegistro extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.card_viewRegistrarRegistro: {
-
                 comprobarSiExisteAlias();
-
                 break;
             }
             case R.id.card_viewRegistroVolver: {
-
                 irALogin();
-
                 break;
             }
         }

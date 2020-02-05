@@ -68,8 +68,6 @@ public class UsersFragment extends Fragment {
     private void readUsers() {
         dbc = new DBC(getActivity(), "localCfgBD", null, 1);
         mUsers = dbc.seleccionarData();
-
-
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -94,14 +92,8 @@ public class UsersFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
-
-
-
     }
-
-
 
 }

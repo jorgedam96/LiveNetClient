@@ -147,14 +147,11 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
 
                         hashMap.put("seen", true);
                         snapshot.getRef().updateChildren(hashMap);
-
                     }
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
     }
@@ -171,12 +168,9 @@ public class MensajeActivity extends AppCompatActivity implements View.OnClickLi
                     readMensaje(FirebaseAuth.getInstance().getCurrentUser().getUid(), receiverid);
                     user_state.setText(fuser.getStatus());
                 } catch (Exception ex) {
-
                     reference.removeEventListener(this);
-
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 

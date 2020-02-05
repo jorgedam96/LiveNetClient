@@ -128,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Escaneado: " + result.getContents(), Toast.LENGTH_LONG).show();
                 insertarAmigo(result.getContents());
-
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);

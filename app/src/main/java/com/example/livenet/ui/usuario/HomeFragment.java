@@ -100,10 +100,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     private void cargarFoto() {
         try {
-
-
             Call<Usuario> call = usuRest.findByAlias(usuarioLogeado.getAlias());
-
             call.enqueue(new Callback<Usuario>() {
                 @Override
                 public void onResponse(Call<Usuario> call, Response<Usuario> response) {
@@ -119,10 +116,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         }
                     }
                 }
-
                 @Override
                 public void onFailure(Call<Usuario> call, Throwable t) {
-
                 }
             });
         } catch (Exception e) {
@@ -142,10 +137,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                                         int which) {
                         DBC dbc = new DBC(getContext(),"localCfgBD", null, 1);
                         cerrarSesionRest(dbc.recogerToken().getToken(), dbc);
-
-
-
-
                     }
                 });
 
@@ -187,8 +178,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-
-
             }
 
             @Override
@@ -204,7 +193,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void cambiarFoto() {
-
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(galleryIntent, GALERIA);
@@ -224,7 +212,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void incrustarQRAlert(Bitmap bitmap) {
-
         LayoutInflater inflater = (LayoutInflater) root.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         AlertDialog.Builder builder = new AlertDialog.Builder(root.getContext());
         builder.setTitle("Este es tu código QR");
@@ -238,8 +225,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void abrirCamara() {
-
-
         IntentIntegrator integrator = new IntentIntegrator(getActivity());
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
         integrator.setPrompt("Enfoca un QR para agregar a un amigo!\n\n\n");
@@ -254,7 +239,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         if (resultCode == MainActivity.RESULT_CANCELED) {
             return;
         }
-
         if (requestCode == GALERIA) {
             if (data != null) {
                 // Obtenemos su URI con su dirección temporal
@@ -266,16 +250,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     ivFotoPerfil.setImageBitmap(MyB64.comprimirImagen(bitmap, root.getContext()));
                     //insert en rest
                     usuarioLogeado.setFoto(MyB64.bitmapToBase64(MyB64.comprimirImagen(bitmap, root.getContext())));
-
-
                     Call<Usuario> call = usuRest.update(usuarioLogeado.getAlias(), usuarioLogeado);
-
                     call.enqueue(new Callback<Usuario>() {
                         @Override
                         public void onResponse(Call<Usuario> call, Response<Usuario> response) {
-
                         }
-
                         @Override
                         public void onFailure(Call<Usuario> call, Throwable t) {
 

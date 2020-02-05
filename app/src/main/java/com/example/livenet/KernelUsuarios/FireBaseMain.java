@@ -109,7 +109,6 @@ public class FireBaseMain {
         this.checkingAmigos.destroySelf();
         status("Desconectado");
         FirebaseAuth.getInstance().signOut();
-
     }
 
 
