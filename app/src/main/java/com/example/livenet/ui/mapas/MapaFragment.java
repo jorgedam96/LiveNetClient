@@ -137,7 +137,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                acercarZoom=false;
+                acercarZoom = false;
                 textToSpeech = new TextToSpeech(root.getContext(), new TextToSpeech.OnInitListener() {
                     @Override
                     public void onInit(int status) {
@@ -537,12 +537,12 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback {
                         for (Localizacion l : listaLocs) {
                             if (l.getAlias() != null) {
                                 acercarZoom = false;
-                                if (voz.toString().toLowerCase().contains(l.getAlias())) {
+                                if (voz.toString().toLowerCase().contains(l.getAlias().toLowerCase())) {
                                     contestaspeech(l, l.getAlias());
                                 } else if (voz.toString().toLowerCase().contains(aliasLogeado) || voz.toString().toLowerCase().contains("estoy")) {
-                                    contestaspeech(l, aliasLogeado);
+                                    contestaspeech(new Localizacion("", ultima.getLatitude(), ultima.getLongitude(), "", 0), aliasLogeado);
                                 } else if (voz.toString().toLowerCase().contains("hola")) {
-                                    textToSpeech.speak("Hola "+aliasLogeado, TextToSpeech.QUEUE_FLUSH, null);
+                                    textToSpeech.speak("Hola  " + aliasLogeado, TextToSpeech.QUEUE_FLUSH, null);
                                 }
                             }
                         }
